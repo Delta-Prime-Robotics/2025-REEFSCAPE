@@ -4,13 +4,16 @@
 
 package frc.robot.subsystems;
 
+import java.io.NotActiveException;
 import java.util.Optional;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
+import com.studica.frc.AHRS.NavXUpdateRate;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -57,8 +60,9 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  // // The gyro sensor
-  public final static AHRS m_navx = new AHRS(SPI.Port.kMXP); 
+  // The gyro sensor
+  public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI); 
+  //public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k40Hz); 
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -95,49 +99,44 @@ public class DriveSubsystem extends SubsystemBase {
       DriverStation.reportError("Error instantiating navX MSP: " + ex.getMessage(), true);
     }
 
-    AutoBuilder.configureHolonomic(
-                this::getPose, // Robot pose supplier
-                this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
-                                                 // Constants class
-                        new PIDConstants(1, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(1, 0.0, 0.0), // Rotation PID constants
-                        Constants.DriveConstants.kMaxSpeedMetersPerSecond, // Max module speed, in m/s
-                        0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-                        new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    try{
+      RobotConfig config = RobotConfig.fromGUISettings();
 
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
-        );
-    
+      AutoBuilder.configure(
+                  this::getPose, // Robot pose supplier
+                  this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+                  this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                  (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                  new PPHolonomicDriveController( //, this should likely live in your
+                                                  // Constants class
+                          new PIDConstants(1, 0.0, 0.0), // Translation PID constants
+                          new PIDConstants(1, 0.0, 0.0) // Rotation PID constants
+                  ),
+                  config, // Configuration for the path follower
+                  () -> {
+                      // Boolean supplier that controls when the path will be mirrored for the red
+                      // alliance
+                      // This will flip the path being followed to the red side of the field.
+                      // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                      var alliance = DriverStation.getAlliance();
+                      if (alliance.isPresent()) {
+                          return alliance.get() == DriverStation.Alliance.Red;
+                      }
+                      return false;
+                  },
+                  this // Reference to this subsystem to set requirements
+          );
+    } catch(Exception e){
+      DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", e.getStackTrace());
+    }
+      
     //field
     SmartDashboard.putData("Field", m_Field);
   }
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block
-    // m_odometry.update(
-    //     Rotation2d.fromDegrees(m_navx.getAngle()),
-    //     new SwerveModulePosition[] {
-    //         m_frontLeft.getPosition(),
-    //         m_frontRight.getPosition(),
-    //         m_rearLeft.getPosition(),
-    //         m_rearRight.getPosition()
-    //     });
     m_poseEstimator.update(
       getHeading(),
       getModulePositions()
@@ -146,7 +145,6 @@ public class DriveSubsystem extends SubsystemBase {
     //robot postion on field
     m_Field.setRobotPose(getPose());
     SmartDashboard.putNumber("Get Heading", this.getHeading().getDegrees());
-
   }
 
   /**
@@ -155,7 +153,6 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    // return m_odometry.getPoseMeters();
     return m_poseEstimator.getEstimatedPosition();
   }
 
@@ -165,17 +162,6 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    // m_odometry.resetPosition(
-    //     //Rotation2d.fromDegrees(m_navx.getAngle())// 
-    //     m_navx.getRotation2d(),
-    //     new SwerveModulePosition[] {
-    //         m_frontLeft.getPosition(),
-    //         m_frontRight.getPosition(),
-    //         m_rearLeft.getPosition(),
-    //         m_rearRight.getPosition()
-    //     },
-    //     pose);
-
     m_poseEstimator.resetPosition(
       getHeading(),
       getModulePositions(),    
@@ -257,21 +243,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
     
     drive(new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered), fieldRelative);
-    //as a option use these instead
-    // ChassisSpeeds m_fieldRevChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, m_navx.getRotation2d());
-    // SmartDashboard.putData("field relitive chassis speeds", (Sendable) m_fieldRevChassisSpeeds); // this definitly does not work.
-    // ChassisSpeeds m_ChassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
-    
-    // var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-    //     fieldRelative
-    //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, m_navx.getRotation2d())
-    //     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-    // SwerveDriveKinematics.desaturateWheelSpeeds(
-    //     swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    // m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    // m_frontRight.setDesiredState(swerveModuleStates[1]);
-    // m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    // m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
@@ -281,7 +252,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
     if (fieldRelative)
         speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()); //m_navx.getRotation2d()
-    //speeds = ChassisSpeeds.discretize(speeds, LoggedRobot.defaultPeriodSecs);
+    
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     setModuleStates(swerveModuleStates);
@@ -313,11 +284,16 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(desiredStates[3]);
   }
 
+  @SuppressWarnings("unused")
   private ChassisSpeeds getRobotRelativeSpeeds() {
       return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
-
+  /**
+   * Retrieves the current states of all swerve modules.
+   *
+   * @return An array of the current states of the swerve modules.
+   */
   private SwerveModuleState[] getModuleStates() {
       return new SwerveModuleState[] {
               m_frontLeft.getState(),
@@ -327,6 +303,11 @@ public class DriveSubsystem extends SubsystemBase {
       };
   }
 
+  /**
+   * Retrieves the current positions of all swerve modules.
+   *
+   * @return An array of the current positions of the swerve modules.
+   */
   private SwerveModulePosition[] getModulePositions(){
     return new SwerveModulePosition[] {
         m_frontLeft.getPosition(),
@@ -336,7 +317,9 @@ public class DriveSubsystem extends SubsystemBase {
     };
   }
 
-  /** Resets the drive encoders to currently read a position of 0. */
+  /**
+   * Resets the drive encoders to currently read a position of 0.
+   */
   public void resetEncoders() {
     m_frontLeft.resetEncoders();
     m_rearLeft.resetEncoders();
@@ -353,20 +336,11 @@ public class DriveSubsystem extends SubsystemBase {
   /**
    * Returns the heading of the robot.
    *
-   * @return the robot's heading in degrees, from -180 to 180
+   * @return the robot's heading in degrees
    */
-  // public double getHeading() {
-  //   return m_navx.getRotation2d().getDegrees();
-  // }
-
   public Rotation2d getHeading() {
     return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0));
   }
-
-  // public Rotation2d getHeading(){
-  //   return getPose().getRotation();
-  // }
-
 
   /**
    * Returns the turn rate of the robot.
