@@ -74,6 +74,16 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_Field = new Field2d();
 
+  // Odometry class for tracking robot pose
+  // SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+  //     DriveConstants.kDriveKinematics,
+  //     m_navx.getRotation2d(),//Rotation2d.fromDegrees(m_navx.getAngle()),
+  //     new SwerveModulePosition[] {
+  //         m_frontLeft.getPosition(),
+  //         m_frontRight.getPosition(),
+  //         m_rearLeft.getPosition(),
+  //         m_rearRight.getPosition()
+  //     });
   SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
     DriveConstants.kDriveKinematics,
     getHeading(),
@@ -144,10 +154,6 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
-  }
-  
-  public void addVisionMesurement(Pose2d visionMeasurement, double timestamp) {
-    m_poseEstimator.addVisionMeasurement(visionMeasurement, timestamp);
   }
 
   /**

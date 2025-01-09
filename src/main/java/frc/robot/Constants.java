@@ -4,21 +4,12 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Centimeter;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meter;
-
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -126,19 +117,6 @@ public final class Constants {
     //smart Current Limits
     public static final int kNeo550SetCurrent = 30;
     public static final int kNeoSetCurrent = 50;
-  }
-
-  public static final class VisionConstants {
-      public static final String kCameraName = "mayTag";
-      public static final Transform3d kCameraOffset = new Transform3d(
-        Distance.ofBaseUnits(1, Centimeter),
-        Distance.ofBaseUnits(1,Centimeter),
-        Distance.ofBaseUnits(1, Centimeter),
-        new Rotation3d(
-            Angle.ofBaseUnits(30, Degrees),
-            Angle.ofBaseUnits(30, Degrees),
-            Angle.ofBaseUnits(30, Degrees)
-            ));
   }
 
   /*Usb port Constants for Laptop */

@@ -7,19 +7,9 @@ package frc.robot;
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Vision;
-
-import java.io.IOException;
-import java.util.function.BiConsumer;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -39,31 +29,22 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-  //Utilitys
-  private final Autos m_Autos = new Autos();
-  private Vision m_Vision;
-
+  private final DriveSubsystem m_DriveSubsystem;
+  private final Autos m_Autos;
+  
   // The driver's controller
   private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
   
-  private final UsbCamera m_UsbCamera;
   private final SendableChooser<Command> m_pathChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. 
-   * @throws IOException */
-    public RobotContainer(){
-    try {
-      m_Vision = new Vision(m_DriveSubsystem::addVisionMesurement);
-    }
-    catch(IOException e){
-      DriverStation.reportWarning("Unable to initialize vision", e.getStackTrace());
-    }
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
+    //Subsystems
+    m_DriveSubsystem = new DriveSubsystem();
+
+    //Utilitys
+    m_Autos = new Autos();
     
-
-    m_UsbCamera = CameraServer.startAutomaticCapture();
-    m_UsbCamera.setResolution(320, 240);
-
     // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
@@ -71,24 +52,9 @@ public class RobotContainer {
     m_pathChooser = AutoBuilder.buildAutoChooser();
 
     // Configure the trigger bindings
-    configureDefaultCommands();
     configureBindings();
     
     SmartDashboard.putData("PathPlaner Chooser", m_pathChooser);
-  }
-  
-  private void configureDefaultCommands(){
-    m_DriveSubsystem.setDefaultCommand(
-    // The left stick controls translation of the robot.
-    // Turning is controlled by the X axis of the right stick.
-    new RunCommand(
-        () -> m_DriveSubsystem.drive(
-            -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
-            true, true),
-      m_DriveSubsystem));
-    
   }
 
   /**
@@ -102,6 +68,17 @@ public class RobotContainer {
    */
   private void configureBindings() {
     //Drive Subsystem Bindings
+    m_DriveSubsystem.setDefaultCommand(
+    // The left stick controls translation of the robot.
+    // Turning is controlled by the X axis of the right stick.
+    new RunCommand(
+        () -> m_DriveSubsystem.drive(
+            -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
+            true, true),
+      m_DriveSubsystem));
+    
     new JoystickButton(m_driverGamepad, Button.kBack.value)
     .onTrue(new InstantCommand(
       () ->m_DriveSubsystem.zeroHeading(),
