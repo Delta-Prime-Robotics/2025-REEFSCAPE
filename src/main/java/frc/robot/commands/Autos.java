@@ -9,6 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 public final class Autos {
   public Autos() {
-    throw new UnsupportedOperationException("This is a utility class!");
+   
   }
 }
