@@ -14,13 +14,18 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.*;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
+import java.time.format.DateTimeParseException;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Constants.ModuleConstants;
 
 public class MAXSwerveModule {
-  private final SparkMax m_drivingSparkMax;
+  private final SparkFlex m_drivingSparkFlex;
   private final SparkMax m_turningSparkMax;
 
   private final RelativeEncoder m_drivingEncoder;
@@ -29,7 +34,7 @@ public class MAXSwerveModule {
   private final SparkClosedLoopController m_drivingPIDController;
   private final SparkClosedLoopController m_turningPIDController;
 
-  private final SparkMaxConfig m_drivingConfig;
+  private final SparkFlexConfig m_drivingConfig;
   private final SparkMaxConfig m_turningConfig;
 
   private double m_chassisAngularOffset = 0;
@@ -42,25 +47,20 @@ public class MAXSwerveModule {
    * Encoder.
    */
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
-    m_drivingSparkMax = new SparkMax(drivingCANId, MotorType.kBrushless);
+    m_drivingSparkFlex = new SparkFlex(drivingCANId, MotorType.kBrushless);
     m_turningSparkMax = new SparkMax(turningCANId, MotorType.kBrushless);
    
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
-    m_drivingEncoder = m_drivingSparkMax.getEncoder();
+    m_drivingEncoder = m_drivingSparkFlex.getEncoder();
     m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder();
 
-    m_drivingPIDController = m_drivingSparkMax.getClosedLoopController();
+    m_drivingPIDController = m_drivingSparkFlex.getClosedLoopController();
     m_turningPIDController = m_turningSparkMax.getClosedLoopController();
 
     //Configs
-    m_drivingConfig = new SparkMaxConfig();
+    m_drivingConfig = new SparkFlexConfig();
     m_turningConfig = new SparkMaxConfig();
-
-    // Factory reset, so we get the SPARKS MAX to a known state before configuring
-    // them. This is useful in case a SPARK MAX is swapped out.
-    // m_drivingSparkMax.restoreFactoryDefaults();
-    // m_turningSparkMax.restoreFactoryDefaults();
 
     // ** Driving Encoder Config
     m_drivingConfig.encoder
@@ -91,7 +91,7 @@ public class MAXSwerveModule {
     	.outputRange(ModuleConstants.kDrivingMinOutput,
     		ModuleConstants.kDrivingMaxOutput);
 		// Set the PID gains for the driving motor. Note these are example gains, and you
-    // may need to tune them for your own robot!
+        // may need to tune them for your own robot!
     
     // ** Turning PID Config
     m_turningConfig.closedLoop
@@ -124,7 +124,7 @@ public class MAXSwerveModule {
       .smartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
     
     // * CONFIGURE MOTORS
-    m_drivingSparkMax.configure(m_drivingConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_drivingSparkFlex.configure(m_drivingConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_turningSparkMax.configure(m_turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_chassisAngularOffset = chassisAngularOffset;
@@ -170,7 +170,8 @@ public class MAXSwerveModule {
 
     // ! will be Deprecated next year
     // Optimize the reference state to avoid spinning further than 90 degrees.
-    SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
+    SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(
+        correctedDesiredState,
         new Rotation2d(m_turningEncoder.getPosition()));
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
@@ -182,5 +183,11 @@ public class MAXSwerveModule {
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
+  }
+
+  /**Returns an double array with {DriveMotorTemp, TurningMotorTemp} */
+  public double[] motorTemps(){
+    double temps[] = {m_drivingSparkFlex.getMotorTemperature(), m_turningSparkMax.getMotorTemperature()};
+    return temps;
   }
 }
