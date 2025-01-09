@@ -29,8 +29,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_DriveSubsystem;
-  private final Autos m_Autos;
+  private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
+
+  // Utilitys
+  private final Autos m_Autos = new Autos();
   
   // The driver's controller
   private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
@@ -39,11 +41,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    //Subsystems
-    m_DriveSubsystem = new DriveSubsystem();
-
-    //Utilitys
-    m_Autos = new Autos();
     
     // ! Must be called after subsystems are created 
     // ! and before building auto chooser
@@ -52,11 +49,25 @@ public class RobotContainer {
     m_pathChooser = AutoBuilder.buildAutoChooser();
 
     // Configure the trigger bindings
+    configureDefaultCommands();
     configureBindings();
     
     SmartDashboard.putData("PathPlaner Chooser", m_pathChooser);
   }
+  
+  private void configureDefaultCommands() {
+    m_DriveSubsystem.setDefaultCommand(
+      // The left stick controls translation of the robot.
+      // Turning is controlled by the X axis of the right stick.
+        new RunCommand(
+          () -> m_DriveSubsystem.drive(
+              -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
+              -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
+              -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
+              true, true),
+          m_DriveSubsystem));
 
+  }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -68,16 +79,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
     //Drive Subsystem Bindings
-    m_DriveSubsystem.setDefaultCommand(
-    // The left stick controls translation of the robot.
-    // Turning is controlled by the X axis of the right stick.
-    new RunCommand(
-        () -> m_DriveSubsystem.drive(
-            -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
-            true, true),
-      m_DriveSubsystem));
     
     new JoystickButton(m_driverGamepad, Button.kBack.value)
     .onTrue(new InstantCommand(
