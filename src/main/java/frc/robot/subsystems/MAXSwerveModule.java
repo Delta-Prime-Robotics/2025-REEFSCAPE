@@ -71,7 +71,7 @@ public class MAXSwerveModule {
     // but we want meters and meters per second to use with WPILib's swerve APIs.
 
     // ** Turning Encoder Config
-    m_turningConfig.encoder
+    m_turningConfig.absoluteEncoder
       .inverted(ModuleConstants.kTurningEncoderInverted)
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
     // the steering motor in the MAXSwerve Module.
@@ -162,6 +162,7 @@ public class MAXSwerveModule {
    *
    * @param desiredState Desired state with speed and angle.
    */
+  @SuppressWarnings("deprecation")
   public void setDesiredState(SwerveModuleState desiredState) {
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();

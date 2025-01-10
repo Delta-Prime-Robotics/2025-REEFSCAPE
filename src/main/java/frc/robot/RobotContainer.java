@@ -32,7 +32,7 @@ public class RobotContainer {
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
 
   // Utilitys
-  private final Autos m_Autos = new Autos();
+ //private final Autos m_Autos = new Autos();
   
   // The driver's controller
   private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
@@ -46,7 +46,7 @@ public class RobotContainer {
     // ! and before building auto chooser
     configurePathPlaner();
     
-    m_pathChooser = AutoBuilder.buildAutoChooser();
+    m_pathChooser = AutoBuilder.buildAutoChooser("");
 
     // Configure the trigger bindings
     configureDefaultCommands();
