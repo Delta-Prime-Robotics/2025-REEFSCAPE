@@ -26,10 +26,6 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
-    public static final double kDirectionSlewRate = 1.1; // radians per second
-    public static final double kMagnitudeSlewRate = 1.6; // percent per second (1 = 100%)
-    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
-
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(24.5);
     // Distance between centers of right and left wheels on robot
@@ -73,6 +69,7 @@ public final class Constants {
 
     // Calculations required for driving motor conversion factors and feed forward
     //! remember to change between Neo drive and Votex drive
+    //public static final double kDrivingMotorFreeSpeedRps = MotorConstants.kNeoFreeSpeedRpm / 60;
     public static final double kDrivingMotorFreeSpeedRps = MotorConstants.kVortexFreeSpeedRpm / 60;
     public static final double kWheelDiameterMeters = 0.0762;
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
@@ -81,34 +78,6 @@ public final class Constants {
     public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
         / kDrivingMotorReduction;
 
-    public static final double kDrivingEncoderPositionFactor = (kWheelDiameterMeters * Math.PI)
-        / kDrivingMotorReduction; // meters
-    public static final double kDrivingEncoderVelocityFactor = ((kWheelDiameterMeters * Math.PI)
-        / kDrivingMotorReduction) / 60.0; // meters per second
-
-    public static final double kTurningEncoderPositionFactor = (2 * Math.PI); // radians
-    public static final double kTurningEncoderVelocityFactor = (2 * Math.PI) / 60.0; // radians per second
-
-    public static final double kTurningPositionPIDMinInput = 0; // radians
-    public static final double kTurningPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
-    public static final boolean kTurningPositionWrapping = true;
-
-    public static final double kDrivingP = 0.04;
-    public static final double kDrivingI = 0;
-    public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
-    public static final double kDrivingMinOutput = -1;
-    public static final double kDrivingMaxOutput = 1;
-
-    public static final double kTurningP = 1;
-    public static final double kTurningI = 0;
-    public static final double kTurningD = 0;
-    public static final double kTurningFF = 0;
-    public static final double kTurningMinOutput = -1;
-    public static final double kTurningMaxOutput = 1;
-
-    public static final int kDrivingMotorCurrentLimit = 50; // amps
-    public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 
   public static final class MotorConstants {
