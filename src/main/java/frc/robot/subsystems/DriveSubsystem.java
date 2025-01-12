@@ -284,7 +284,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(desiredStates[3]);
   }
 
-  @SuppressWarnings("unused")
   private ChassisSpeeds getRobotRelativeSpeeds() {
       return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
   }
