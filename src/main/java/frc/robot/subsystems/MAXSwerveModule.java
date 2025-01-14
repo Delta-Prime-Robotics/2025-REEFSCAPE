@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.*;
 import com.revrobotics.spark.SparkMax;
@@ -18,6 +20,8 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import java.time.format.DateTimeParseException;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
@@ -116,9 +120,9 @@ public class MAXSwerveModule {
     m_drivingEncoder.setPosition(0);
   }
 
-  /**Returns an double array with {DriveMotorTemp, TurningMotorTemp} */
-  public double[] motorTemps(){
-    double temps[] = {m_drivingSparkFlex.getMotorTemperature(), m_turningSparkMax.getMotorTemperature()};
-    return temps;
+  /**Returns the avrage Temp of this modules motors*/
+  public double getMotorTemps(){
+    double avgTemp = (m_drivingSparkFlex.getMotorTemperature() + m_turningSparkMax.getMotorTemperature()) / 2;
+    return avgTemp;
   }
 }

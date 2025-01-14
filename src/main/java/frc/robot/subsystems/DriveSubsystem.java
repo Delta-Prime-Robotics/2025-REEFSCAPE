@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import java.io.NotActiveException;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -65,16 +67,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_Field = new Field2d();
 
-  // Odometry class for tracking robot pose
-  // SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-  //     DriveConstants.kDriveKinematics,
-  //     m_navx.getRotation2d(),//Rotation2d.fromDegrees(m_navx.getAngle()),
-  //     new SwerveModulePosition[] {
-  //         m_frontLeft.getPosition(),
-  //         m_frontRight.getPosition(),
-  //         m_rearLeft.getPosition(),
-  //         m_rearRight.getPosition()
-  //     });
   SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
     DriveConstants.kDriveKinematics,
     getHeading(),
