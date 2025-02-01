@@ -7,10 +7,12 @@ package frc.robot;
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Haptics;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,8 +37,9 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
-  
+  private final XboxController  m_driverGamepad = new XboxController(UsbPort.kDriveControler);
+  private final Haptics m_driverHaptics = new Haptics(m_driverGamepad);
+
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -91,6 +94,10 @@ public class RobotContainer {
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+    new JoystickButton(m_driverGamepad, Button.kY.value)
+    .onTrue(m_driverHaptics.coralRumble());
+
   }
 
   private void configurePathPlaner(){
