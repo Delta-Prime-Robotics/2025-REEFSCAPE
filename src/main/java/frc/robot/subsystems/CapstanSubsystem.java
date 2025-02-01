@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.Capstan;
@@ -40,6 +41,8 @@ public class CapstanSubsystem extends SubsystemBase {
   private final SparkClosedLoopController m_elevatorPIDController;
   private final SparkClosedLoopController m_wristPIDController;
 
+  private final DigitalInput m_hallSensor;
+
   private boolean wasResetByLimit = false;
   private double elevatorCurrentTarget = ElevatorSetpoints.kStore;
   private double wristCurrentTarget = WristSetpoints.kStore;
@@ -60,6 +63,13 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_elevatorEncoder.setPosition(0);
     //m_wristEncoder.setPosition(0);
+
+    m_hallSensor = new DigitalInput(0);
+
+  }
+
+  public boolean isElevatorAtBottom() {
+    return m_hallSensor.get();
   }
 
   private void moveToSetpoint() {
@@ -70,13 +80,13 @@ public class CapstanSubsystem extends SubsystemBase {
 
   /** Zero the elevator encoder when the limit switch is pressed. */
   private void zeroElevatorOnLimitSwitch() {
-    if (!wasResetByLimit && m_elevatorMotor.getReverseLimitSwitch().isPressed()) {
+    if (!wasResetByLimit && isElevatorAtBottom()) {
       // Zero the encoder only when the limit switch is switches from "unpressed" to
       // "pressed" to
       // prevent constant zeroing while pressed
       m_elevatorEncoder.setPosition(0);
       wasResetByLimit = true;
-    } else if (!m_elevatorMotor.getReverseLimitSwitch().isPressed()) {
+    } else if (!isElevatorAtBottom()) {
       wasResetByLimit = false;
     }
   }
