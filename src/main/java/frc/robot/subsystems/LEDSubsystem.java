@@ -68,7 +68,8 @@ public class LEDSubsystem extends SubsystemBase {
        base = LEDPattern.solid(Color.kRed);
     }
 
-    this.setDefaultCommand(runPattern(base.atBrightness(Percent.of(kBrightness))));
+    this.setDefaultCommand(
+      runPattern(base.atBrightness(Percent.of(kBrightness))));
   }
 
    /** Creates a command that runs a pattern on the entire LED strip.
