@@ -8,6 +8,7 @@ import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
 
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
@@ -35,8 +36,8 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
-  
+  private final CommandXboxController  m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
+
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -80,17 +81,19 @@ public class RobotContainer {
   private void configureBindings() {
     //Drive Subsystem Bindings
     
-    new JoystickButton(m_driverGamepad, Button.kBack.value)
+    m_driverGamepad.back()
     .onTrue(new InstantCommand(
       () ->m_DriveSubsystem.zeroHeading(),
       m_DriveSubsystem
     ));
   
-    new JoystickButton(m_driverGamepad, Button.kX.value)
+    m_driverGamepad.x()
     .toggleOnTrue(new InstantCommand(
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+
   }
 
   private void configurePathPlaner(){
