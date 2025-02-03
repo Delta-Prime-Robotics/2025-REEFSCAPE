@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -54,7 +55,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureDefaultCommands();
     configureBindings();
-    
+    SmartDashboard.putBoolean("Coral", false);
+    SmartDashboard.putBoolean("Algae", false);
     SmartDashboard.putData("PathPlaner Chooser", m_pathChooser);
   }
   
@@ -69,8 +71,8 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-
   }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -82,7 +84,9 @@ public class RobotContainer {
    */
   private void configureBindings() {
     //Drive Subsystem Bindings
-    
+    Trigger TCoral = new Trigger(()-> SmartDashboard.getBoolean("Coral", false));
+    Trigger TAlgae = new Trigger(()-> SmartDashboard.getBoolean("Algae", false));
+
     new JoystickButton(m_driverGamepad, Button.kBack.value)
     .onTrue(new InstantCommand(
       () ->m_DriveSubsystem.zeroHeading(),
@@ -95,8 +99,14 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
-    new JoystickButton(m_driverGamepad, Button.kY.value)
-    .onTrue(m_driverHaptics.coralRumble());
+    new JoystickButton(m_driverGamepad, Button.kLeftBumper.value)
+    .onTrue(m_driverHaptics.coralBuzz());
+
+    new JoystickButton(m_driverGamepad, Button.kRightBumper.value)
+    .onTrue(m_driverHaptics.algaeBuzz());
+
+    new JoystickButton(m_driverGamepad, Button.kB.value)
+    .whileTrue(m_driverHaptics.babyModeBuzz());
 
   }
 
