@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Time;
@@ -74,6 +75,11 @@ public class LEDSubsystem extends SubsystemBase {
     }
   }
 
+  public Command runPatternFor(LEDPattern pattern, double time) {
+    return runPattern(pattern)
+    .withTimeout(time);
+  }
+  
    /** Creates a command that runs a pattern on the entire LED strip.
    * @param pattern the LED pattern to run*/
   public Command runPattern(LEDPattern pattern) {
@@ -90,15 +96,10 @@ public class LEDSubsystem extends SubsystemBase {
   }
    
   public Command discoMode(){
-    return runEnd(()-> setPattern(LEDPattern.rainbow(50, 128)),
+    return runEnd(()-> setPattern(LEDPattern.rainbow(50, 10)),
       () -> setPattern(LEDPattern.kOff));
   }
 
-  public Command denial() {
-    return runPattern(LEDPattern.solid(Color.kOrangeRed))
-    .withTimeout(2);
-  }
-  
   @Override
   public void periodic() {
     robotState();

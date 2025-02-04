@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -100,10 +101,10 @@ public class RobotContainer {
     ));
 
     new JoystickButton(m_driverGamepad, Button.kA.value)
-    .whileTrue(m_LED.discoMode());
+    .whileTrue(m_LED.runPatternFor(LEDPattern.solid(Color.kOrange), 2));
 
     new JoystickButton(m_driverGamepad, Button.kB.value)
-    .onTrue(m_LED.denial());
+    .onTrue(m_LED.discoMode());
   }
 
   private void configurePathPlaner(){
