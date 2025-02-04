@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
   
 public class LEDSubsystem extends SubsystemBase {
@@ -35,7 +36,7 @@ public class LEDSubsystem extends SubsystemBase {
   private static final int kBrightness = 50;
   private final AddressableLED m_led;
   private final AddressableLEDBuffer m_buffer; 
-
+  
   /** Creates a new LEDSubsystem. */
   public LEDSubsystem() {
     // Must be a PWM header, not MXP or DIO
@@ -64,12 +65,13 @@ public class LEDSubsystem extends SubsystemBase {
         base = LEDPattern.solid(Color.kGreen);
     //    .synchronizedBlink(RobotController::getRSLState);
     }
-    if (RobotState.isDisabled()){
-       base = LEDPattern.solid(Color.kRed);
-    }
+    
+    this.setDefaultCommand(runPattern(base.atBrightness(Percent.of(kBrightness))));
 
-    this.setDefaultCommand(
-      runPattern(base.atBrightness(Percent.of(kBrightness))));
+    if (RobotState.isDisabled()){
+      base = LEDPattern.solid(Color.kRed).atBrightness(Percent.of(kBrightness));
+      setPattern(LEDPattern.solid(Color.kRed));
+    }
   }
 
    /** Creates a command that runs a pattern on the entire LED strip.
@@ -86,7 +88,7 @@ public class LEDSubsystem extends SubsystemBase {
   public void setPattern(LEDPattern pattern) {
     pattern.applyTo(m_buffer);
   }
-
+   
   public Command discoMode(){
     return runEnd(()-> setPattern(LEDPattern.rainbow(50, 128)),
       () -> setPattern(LEDPattern.kOff));
