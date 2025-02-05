@@ -3,6 +3,7 @@ package frc.robot;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import frc.robot.Constants.ModuleConstants;
@@ -57,6 +58,7 @@ public final class Configs {
 
     public static final class AlgaeConfig {
       public static final SparkMaxConfig algaeConfig = new SparkMaxConfig();
+      
       static {
         algaeConfig
           .idleMode(IdleMode.kBrake)
@@ -70,7 +72,7 @@ public final class Configs {
 
     public static final class CoralConfig {
       public static final SparkMaxConfig coralConfig = new SparkMaxConfig();
-      
+  
       static {
         coralConfig
           .idleMode(IdleMode.kBrake)
@@ -78,6 +80,48 @@ public final class Configs {
         coralConfig.encoder
           .positionConversionFactor(0) //what gear ratio, radians
           .velocityConversionFactor(0); // radians per second, radians/60
+      }
+    }
+
+    public static final class Capstan {
+      public static final SparkMaxConfig elevatorConfig = new SparkMaxConfig(); //NEO
+      public static final SparkMaxConfig wristConfig = new SparkMaxConfig(); //NEO
+      
+      static{
+        elevatorConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
+          //.closedLoopRampRate(0.2);
+        elevatorConfig.encoder
+          .positionConversionFactor(0)
+          .velocityConversionFactor(0);
+        elevatorConfig.limitSwitch
+          .reverseLimitSwitchType(Type.kNormallyOpen);
+        elevatorConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .pidf(0,0,0,1/MotorConstants.kNeoFreeSpeedRpm)
+          .outputRange(-1, 1);
+        // .maxMotion
+        //   .allowedClosedLoopError(0.5)
+        //   .maxAcceleration(0)
+        //   .maxVelocity(0)
+        //   .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+
+        wristConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
+        wristConfig.encoder
+          .positionConversionFactor(0)
+          .velocityConversionFactor(0);
+        wristConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .pidf(0,0,0, 1/MotorConstants.kNeoFreeSpeedRpm)
+          .outputRange(-1, 1);
+        // .maxMotion
+        //   .allowedClosedLoopError(0.25)
+        //   .maxAcceleration(0)
+        //   .maxVelocity(0);
+
       }
     }
 }
