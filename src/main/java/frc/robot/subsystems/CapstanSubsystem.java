@@ -26,10 +26,10 @@ public class CapstanSubsystem extends SubsystemBase {
     kStore,
     kFeederStation,
     kProcessor,
-    kLevel1,
-    kLevel2,
-    kLevel3,
-    kLevel4;
+    kL1,
+    kL2,
+    kL3,
+    kL4;
   }
 
   private final SparkMax m_elevatorMotor;
@@ -46,6 +46,7 @@ public class CapstanSubsystem extends SubsystemBase {
   private boolean wasResetByLimit = false;
   private double elevatorCurrentTarget = ElevatorSetpoints.kStore;
   private double wristCurrentTarget = WristSetpoints.kStore;
+  private Setpoint currentSetpoint = Setpoint.kStore;
 
   /** Creates a new CapstanSubsystem. */
   public CapstanSubsystem() {
@@ -72,6 +73,10 @@ public class CapstanSubsystem extends SubsystemBase {
     return m_hallSensor.get();
   }
 
+  public Setpoint curentCapstanSetpoint() {
+    return currentSetpoint;
+  }
+
   private void moveToSetpoint() {
     m_wristPIDController.setReference(wristCurrentTarget, ControlType.kMAXMotionPositionControl);
     m_elevatorPIDController.setReference(
@@ -96,34 +101,42 @@ public class CapstanSubsystem extends SubsystemBase {
    * positions for the given setpoint.
    */
   public Command setSetpointCommand(Setpoint setpoint) {
+
     return this.runOnce(
         () -> {
           switch (setpoint) {
             case kStore:
               wristCurrentTarget = WristSetpoints.kStore;
               elevatorCurrentTarget = ElevatorSetpoints.kStore;
+              currentSetpoint = Setpoint.kStore;
             case kProcessor:
               wristCurrentTarget = WristSetpoints.kProcessor;
               elevatorCurrentTarget = ElevatorSetpoints.kProcessor;
+              currentSetpoint = Setpoint.kProcessor;
             case kFeederStation:
               wristCurrentTarget = WristSetpoints.kFeederStation;
               elevatorCurrentTarget = ElevatorSetpoints.kFeederStation;
+              currentSetpoint = Setpoint.kFeederStation;
               break;
-            case kLevel1:
+            case kL1:
               wristCurrentTarget = WristSetpoints.kL1;
               elevatorCurrentTarget = ElevatorSetpoints.kL1;
+              currentSetpoint = Setpoint.kL1;
               break;
-            case kLevel2:
+            case kL2:
               wristCurrentTarget = WristSetpoints.kL2;
               elevatorCurrentTarget = ElevatorSetpoints.kL2;
+              currentSetpoint = Setpoint.kL2;
               break;
-            case kLevel3:
+            case kL3:
               wristCurrentTarget = WristSetpoints.kL3;
               elevatorCurrentTarget = ElevatorSetpoints.kL3;
+              currentSetpoint = Setpoint.kL3;
               break;
-            case kLevel4:
+            case kL4:
               wristCurrentTarget = WristSetpoints.kL4;
               elevatorCurrentTarget = ElevatorSetpoints.kL4;
+              currentSetpoint = Setpoint.kL4;
               break;
           }
         });
