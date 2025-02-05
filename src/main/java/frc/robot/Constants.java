@@ -89,6 +89,17 @@ public final class Constants {
     public static final int kVortexSetCurrent = 50;//amps
   }
   
+  public final class CoralConstants {
+    public static final int kCoralMotor = 5;
+    public static final int kCoralLaser = 6;
+  }
+
+  public final class AlgaeConstants {
+    public static final int kAlgaeLeader = 7;
+    public static final int kAlgaeFollower = 8;
+    public static final int kAlgaeLaser = 9;
+  }
+
   /*Usb port Constants for Laptop */
   public final class UsbPort {
     public static final double kDriveDeadband = 0.05;
