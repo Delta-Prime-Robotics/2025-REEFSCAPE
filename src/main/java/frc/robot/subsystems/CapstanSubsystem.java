@@ -26,6 +26,7 @@ public class CapstanSubsystem extends SubsystemBase {
     kStore,
     kFeederStation,
     kProcessor,
+    kNet,
     kL1,
     kL2,
     kL3,
@@ -101,7 +102,6 @@ public class CapstanSubsystem extends SubsystemBase {
    * positions for the given setpoint.
    */
   public Command setSetpointCommand(Setpoint setpoint) {
-
     return this.runOnce(
         () -> {
           switch (setpoint) {
@@ -117,6 +117,11 @@ public class CapstanSubsystem extends SubsystemBase {
               wristCurrentTarget = WristSetpoints.kFeederStation;
               elevatorCurrentTarget = ElevatorSetpoints.kFeederStation;
               currentSetpoint = Setpoint.kFeederStation;
+              break;
+            case kNet:
+              wristCurrentTarget = WristSetpoints.kProcessor;
+              elevatorCurrentTarget = ElevatorSetpoints.kProcessor;
+              currentSetpoint = Setpoint.kProcessor;
               break;
             case kL1:
               wristCurrentTarget = WristSetpoints.kL1;
