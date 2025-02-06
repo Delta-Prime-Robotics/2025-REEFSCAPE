@@ -25,7 +25,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   //Spark Maxes
   private static SparkMax m_algaeLeader;
   private static SparkMax m_algaeFollower;
-  private static SparkMaxConfig m_algaeFollowerConfig;
+  private static SparkMaxConfig m_algaeFollowerConfig = new SparkMaxConfig();
  
   //Lasers
   private static LaserCan m_algaeLaser;
