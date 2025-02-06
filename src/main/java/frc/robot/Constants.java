@@ -76,6 +76,7 @@ public final class Constants {
         / kDrivingMotorReduction;
   }
 
+
   public static final class CapstanConstants {
     public static final int kElevatorCanId = 18;
     public static final int kWristCanId = 19;
@@ -88,6 +89,7 @@ public final class Constants {
       public static final double kStore = 0;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
+      public static final double kNet = 0;
       public static final double kL1 = 0;
       public static final double kL2 = 0;
       public static final double kL3 = 0;
@@ -99,6 +101,7 @@ public final class Constants {
       public static final double kStore = 0;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
+      public static final double kNet = 0;
       public static final double kL1 = 0;
       public static final double kL2 = 0;
       public static final double kL3 = 0;
