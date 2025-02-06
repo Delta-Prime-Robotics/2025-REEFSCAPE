@@ -13,6 +13,7 @@ import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 import frc.robot.Configs.CoralConfig;
 import frc.robot.Constants.CoralConstants;;
 
@@ -20,12 +21,6 @@ public class CoralSubsystem extends SubsystemBase {
   private static SparkMax m_coralMotor;
   private static LaserCan m_coralLaser;
   
-  public enum OutSpeeds {
-    kL1,
-    kL2,
-    kL3,
-    kL4
-  }
 
   /** Creates a new CoralSubsystem. */
   public CoralSubsystem() {
@@ -68,11 +63,11 @@ public class CoralSubsystem extends SubsystemBase {
     else {return false;}
   }
 
-  private void setCoralMotor(double speed){
+  public void setCoralMotor(double speed){
     m_coralMotor.set(speed);
   }
 
-  private void stopCoralMotor() {
+  public void stopCoralMotor() {
     m_coralMotor.stopMotor();
   }
   
@@ -83,13 +78,15 @@ public class CoralSubsystem extends SubsystemBase {
   }
 
   public Command autoIntakeCoral() {
-    return runCoralMotor(1)
+    return runCoralMotor(CoralConstants.kFeederStationSpeed)
         .until(() -> isCoralDetected())
         .finallyDo(() -> stopCoralMotor());
   }
 
-  public Command outtakeCoral(OutSpeeds level){
+  public Command autoCoralSpeeds(Setpoint level){
       switch (level) {
+        case kFeederStation:
+          return autoIntakeCoral();
         case kL1:
           return runCoralMotor(-0.25);
         case kL2:
