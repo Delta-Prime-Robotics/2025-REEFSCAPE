@@ -10,6 +10,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -41,7 +42,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    //For USB/Ethernet Teathering at Compation
+    PortForwarder.add(5800, "photonvision.local", 5800);
+
     // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
