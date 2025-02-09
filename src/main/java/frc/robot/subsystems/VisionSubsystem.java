@@ -53,9 +53,9 @@ public class VisionSubsystem extends DriveSubsystem {
    * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
    *     used for estimation.
    */
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(List<PhotonPipelineResult> results) { 
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
-      for (var change : getAllUnreadResultsStatic()) {
+      for (var change : results) {
           visionEst = m_photonEstimator.update(change);
           updateEstimationStdDevs(visionEst, change.getTargets());
       }
@@ -180,23 +180,23 @@ public class VisionSubsystem extends DriveSubsystem {
     return Optional.empty(); 
   }
 
-  private List<PhotonPipelineResult> getAllUnreadResultsPrivite() {
+  private void updateAllUnreadResults() {
       List<PhotonPipelineResult> results = m_camera.getAllUnreadResults();
-      return results;
+      currentPipelineResults = results;
   };
 
-  public List<PhotonPipelineResult> getAllUnreadResultsStatic(){
+  public List<PhotonPipelineResult> getAllUnreadResults(){
     return currentPipelineResults;
   }
 
 
   @Override
   public void periodic() {
-    currentPipelineResults = getAllUnreadResultsPrivite();
+    updateAllUnreadResults();
 
     // This method will be called once per scheduler run
     // Correct pose estimate with vision measurements
-    var visionEst = this.getEstimatedGlobalPose();
+    var visionEst = this.getEstimatedGlobalPose(getAllUnreadResults());
     visionEst.ifPresent(
             est -> {
                 // Change our trust in the measurement based on the tags we can see
