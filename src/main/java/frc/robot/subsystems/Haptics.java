@@ -71,12 +71,12 @@ public class Haptics extends SubsystemBase {
         () -> stopBuzzing(kMedium));
   }
 
-  /*This isn't working yet,  */
-  public Command buzzVarBoth(double lightBuzz, double heavyBuzz) {
-    return runOnce(()-> setBuzz(heavyBuzz, kHeavy))
-      .alongWith(runOnce(()-> setBuzz(lightBuzz, kLight)))
-      .finallyDo(()-> stopBuzzing(kMedium));
-  }
+  // /*This isn't working yet,  */
+  // public Command buzzVarBoth(double lightBuzz, double heavyBuzz) {
+  //   return runOnce(()-> setBuzz(heavyBuzz, kHeavy))
+  //     .alongWith(runOnce(()-> setBuzz(lightBuzz, kLight)))
+  //     .finallyDo(()-> stopBuzzing(kMedium));
+  // }
 
   public Command buzzFor(double buzz, RumbleType type, double time) {
     return runEnd(
@@ -107,7 +107,7 @@ public class Haptics extends SubsystemBase {
     return onOffBuzzRepeat(kStrength, kHeavy, kTime, kTotalTime);
   }
 
-  public Command babyModeBuzz() {
-    return buzzFor(1, kMedium, 0.5).andThen(buzzVarBoth(0.75, 0.35));
-  }
+  // public Command babyModeBuzz() {
+  //   return buzzFor(1, kMedium, 0.5).andThen(buzzVarBoth(0.75, 0.35));
+  // }
 }

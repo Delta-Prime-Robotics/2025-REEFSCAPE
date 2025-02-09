@@ -38,9 +38,10 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController  m_driverGamepad = new XboxController(UsbPort.kDriveControler);
-  private final Haptics m_driverHaptics = new Haptics(m_driverGamepad);
+  private final CommandXboxController  m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
+  private final Haptics m_driverHaptics = new Haptics(m_driverGamepad.getHID());
 
+  private static boolean override_bool = false;
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -57,6 +58,7 @@ public class RobotContainer {
     configureBindings();
     SmartDashboard.putBoolean("Coral", false);
     SmartDashboard.putBoolean("Algae", false);
+    SmartDashboard.putBoolean("Override", override_bool);
     SmartDashboard.putData("PathPlaner Chooser", m_pathChooser);
   }
   
@@ -87,26 +89,26 @@ public class RobotContainer {
     Trigger TCoral = new Trigger(()-> SmartDashboard.getBoolean("Coral", false));
     Trigger TAlgae = new Trigger(()-> SmartDashboard.getBoolean("Algae", false));
 
-    new JoystickButton(m_driverGamepad, Button.kBack.value)
+    m_driverGamepad.back()
     .onTrue(new InstantCommand(
-      () ->m_DriveSubsystem.zeroHeading(),
+      () -> m_DriveSubsystem.zeroHeading(),
       m_DriveSubsystem
     ));
-  
-    new JoystickButton(m_driverGamepad, Button.kX.value)
+    
+    m_driverGamepad.x()
     .toggleOnTrue(new InstantCommand(
-      () ->m_DriveSubsystem.setX(),
+      () -> m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
 
-    new JoystickButton(m_driverGamepad, Button.kLeftBumper.value)
+    m_driverGamepad.leftBumper()
     .onTrue(m_driverHaptics.coralBuzz());
 
-    new JoystickButton(m_driverGamepad, Button.kRightBumper.value)
+    m_driverGamepad.rightBumper()
     .onTrue(m_driverHaptics.algaeBuzz());
 
-    new JoystickButton(m_driverGamepad, Button.kB.value)
-    .whileTrue(m_driverHaptics.babyModeBuzz());
+    // m_driverGamepad.b()
+    // .whileTrue(m_driverHaptics.babyModeBuzz());
 
   }
 
