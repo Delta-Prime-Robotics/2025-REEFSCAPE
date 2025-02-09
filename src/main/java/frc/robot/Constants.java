@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.List;
+
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -117,6 +119,17 @@ public final class Constants {
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
   }
   
+  public final class AprilTagIds {
+    public final class RedAlliance {
+      public static final List<Integer> kReefIDs = List.of(6,7,8,9,10,11);
+    }
+
+    public final class BlueAlliance {
+      public static final List<Integer> kReefIDs = List.of(17,18,19,20,21,22);
+    }
+
+  }
+
   /*Usb port Constants for Laptop */
   public final class UsbPort {
     public static final double kDriveDeadband = 0.05;

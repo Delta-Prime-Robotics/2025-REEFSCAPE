@@ -68,25 +68,25 @@ public class DriveSubsystem extends SubsystemBase {
   public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI); 
   //public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k40Hz); 
   
-  private SwerveDrivePoseEstimator m_poseEstimator;
+  // Define the standard deviations for the pose estimator, which determine how fast the pose
+  // estimate converges to the vision measurement. This should depend on the vision measurement
+  // noise and how many or how frequently vision measurements are applied to the pose estimator.
+  //Basicly the you are setting how much you estamate a system drifts, lower values mean less drift/more trust
+  Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(1.5)); // Meters X, Meters Y, Rotation Radians  
+  Matrix<N3, N1> visionStdDevs = VecBuilder.fill(1, 1, 1);
+
+  SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+  DriveConstants.kDriveKinematics,
+  getHeading(),
+  getModulePositions(),
+  new Pose2d(),
+  stateStdDevs,
+  visionStdDevs);
+
   private final Field2d m_Field = new Field2d();
     
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
-    // Define the standard deviations for the pose estimator, which determine how fast the pose
-    // estimate converges to the vision measurement. This should depend on the vision measurement
-    // noise and how many or how frequently vision measurements are applied to the pose estimator.
-    //Basicly the you are setting how much you estamate a system drifts, lower values mean less drift/more trust
-    var stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(1.5)); // Meters X, Meters Y, Rotation Radians  
-    var visionStdDevs = VecBuilder.fill(1, 1, 1);
-
-    SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-    DriveConstants.kDriveKinematics,
-    getHeading(),
-    getModulePositions(),
-    new Pose2d(),
-    stateStdDevs,
-    visionStdDevs);
 
     try {
       m_navx.reset();
@@ -208,14 +208,16 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
     if (fieldRelative)
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()); //m_navx.getRotation2d()
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()); 
     
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     setModuleStates(swerveModuleStates);
   }
 
-  
+  public void stop() {
+    drive(new ChassisSpeeds(0, 0, 0), false);
+  }
 
   /**
    * Sets the wheels into an X formation to prevent movement.
@@ -295,7 +297,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees
    */
   public Rotation2d getHeading() {
-    return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0));
+    return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)); 
+    //change to getYaw to line up with standered cordnate geomotry
   }
 
   /**
