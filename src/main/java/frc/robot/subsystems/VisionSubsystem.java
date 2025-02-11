@@ -25,16 +25,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.VisionConstants.*;
 import frc.robot.Robot;
 
-public class VisionSubsystem extends DriveSubsystem {
+public class VisionSubsystem extends SubsystemBase {
   private PhotonCamera m_camera;
   private PhotonPoseEstimator m_photonEstimator;
   private Matrix<N3, N1> curStdDevs;
   private static List<PhotonPipelineResult> currentPipelineResults;
+  private DriveSubsystem m_drive;
   
     /** Creates a new VisionSubsystem. */
-    public VisionSubsystem() {
+    public VisionSubsystem(DriveSubsystem m_drive) {
+      this.m_drive = m_drive;
       m_camera = new PhotonCamera(kCameraName);
-  
+
       m_photonEstimator = new PhotonPoseEstimator(
               kTagLayout,
               PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
@@ -168,7 +170,7 @@ public class VisionSubsystem extends DriveSubsystem {
           }
     }
     return false;
-}
+  }
 
   public Optional<List<PhotonTrackedTarget>> getTargets(List<PhotonPipelineResult> allPipelineResults) {
     
@@ -193,7 +195,6 @@ public class VisionSubsystem extends DriveSubsystem {
   @Override
   public void periodic() {
     updateAllUnreadResults();
-
     // This method will be called once per scheduler run
     // Correct pose estimate with vision measurements
     var visionEst = this.getEstimatedGlobalPose(getAllUnreadResults());
@@ -201,8 +202,7 @@ public class VisionSubsystem extends DriveSubsystem {
             est -> {
                 // Change our trust in the measurement based on the tags we can see
                 var estStdDevs = this.getEstimationStdDevs();
-
-                super.addVisionMeasurement(
+                  m_drive.addVisionMeasurement(
                   est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
             });
   }

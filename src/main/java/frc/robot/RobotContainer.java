@@ -7,6 +7,9 @@ package frc.robot;
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+
+import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
@@ -31,7 +34,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-
+  private final VisionSubsystem m_vision = new VisionSubsystem(m_DriveSubsystem);
+  private final List<Integer> coralthingy = List.of(12);
   // Utilitys
  //private final Autos m_Autos = new Autos();
   
@@ -44,8 +48,8 @@ public class RobotContainer {
   public RobotContainer() {
     //For USB/Ethernet Teathering at Compation
     PortForwarder.add(5800, "photonvision.local", 5800);
-
-    // ! Must be called after subsystems are created 
+    m_vision.register();
+    // ! Must be called after subsyste ms are created 
     // ! and before building auto chooser
     configurePathPlaner();
     
