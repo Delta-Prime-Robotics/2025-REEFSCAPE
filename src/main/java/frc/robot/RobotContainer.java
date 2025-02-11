@@ -5,8 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.UsbPort;
+import frc.robot.commands.AlignAndDriveToAprilTagCommand;
 import frc.robot.commands.Autos;
-import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -105,9 +105,9 @@ public class RobotContainer {
     .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0));
 
   }
-
+    
   private void configurePathPlaner(){
-  //  NamedCommands.registerCommand(null, null);
+    //  NamedCommands.registerCommand(null, null);
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

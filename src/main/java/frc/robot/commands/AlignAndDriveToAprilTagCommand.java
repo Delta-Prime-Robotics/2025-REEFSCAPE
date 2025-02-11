@@ -51,7 +51,7 @@ public class AlignAndDriveToAprilTagCommand extends Command {
         Optional<Pose2d> tagPose = m_vision.getTargetPose(targetTags, m_vision.getAllUnreadResults());
 
         if (tagPose.isEmpty()) {
-            m_drive.stop();
+
             Commands.print("No AprilTag Detected");
             return; // No valid AprilTag detected
         }
