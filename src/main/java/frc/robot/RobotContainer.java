@@ -6,6 +6,8 @@ package frc.robot;
 
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
+import frc.robot.commands.MoveByDistanceCommand;
+import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -98,6 +100,10 @@ public class RobotContainer {
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+    new JoystickButton(m_driverGamepad, Button.kA.value)
+    .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0));
+
   }
 
   private void configurePathPlaner(){

@@ -12,9 +12,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 public class MoveByDistanceCommand extends Command {
     private final DriveSubsystem m_drive;
     private final PIDController xController, yController, rotController;
-    private final double targetX, targetY;
-    private final Rotation2d targetRot;
-    private static final double TOLERANCE = 0.05; // 5cm tolerance //change to bigger than this
+    private final double targetX, targetY, targetRot;
+    private static final double TOLERANCE = 0.1; // 10cm tolerance //change to bigger than this
 
     /**
      * Command to move the robot by a specified distance in the X and Y directions and rotate by a specified angle.
@@ -30,26 +29,28 @@ public class MoveByDistanceCommand extends Command {
         this.m_drive = driveSubsystem;
         addRequirements(driveSubsystem);
 
-        // Initialize PID controllers for X and Y motion
+        // Initialize PID controllers for X and Y motion and Rotation
         xController = new PIDController(1.0, 0.0, 0.0);
         yController = new PIDController(1.0, 0.0, 0.0);
         rotController = new PIDController(1.0, 0.0, 0.0);
 
         xController.setTolerance(TOLERANCE);
         yController.setTolerance(TOLERANCE);
+        rotController.setTolerance(TOLERANCE);
 
 
         // Calculate target pose
         Pose2d initialPose = m_drive.getPose();
         targetX = initialPose.getX() + xMeters;
         targetY = initialPose.getY() + yMeters;
-        targetRot = initialPose.getRotation().rotateBy(new Rotation2d(radians));
+        targetRot = initialPose.getRotation().rotateBy(new Rotation2d(radians)).getRadians();
     }
 
     @Override
     public void initialize() {
         xController.setSetpoint(targetX);
         yController.setSetpoint(targetY);
+        rotController.setSetpoint(targetRot);
     }
 
     @Override
