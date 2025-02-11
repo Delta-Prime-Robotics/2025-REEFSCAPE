@@ -101,10 +101,10 @@ public class RobotContainer {
     ));
 
     new JoystickButton(m_driverGamepad, Button.kA.value)
-    .whileTrue(m_LED.runPatternFor(LEDPattern.solid(Color.kOrange), 2));
+    .onTrue(m_LED.runPatternFor(LEDPattern.solid(Color.kOrange), 2));
 
     new JoystickButton(m_driverGamepad, Button.kB.value)
-    .onTrue(m_LED.discoMode());
+    .whileTrue(m_LED.discoMode());
   }
 
   private void configurePathPlaner(){

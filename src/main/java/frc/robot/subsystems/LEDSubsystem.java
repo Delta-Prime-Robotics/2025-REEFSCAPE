@@ -94,11 +94,13 @@ public class LEDSubsystem extends SubsystemBase {
   public void setPattern(LEDPattern pattern) {
     pattern.applyTo(m_buffer);
   }
-   
+  
   public Command discoMode(){
-    return runEnd(()-> setPattern(LEDPattern.rainbow(50, 10)),
-      () -> setPattern(LEDPattern.kOff));
+    return runPattern(LEDPattern.rainbow(255, 128));
   }
+  
+    
+  
 
   @Override
   public void periodic() {
