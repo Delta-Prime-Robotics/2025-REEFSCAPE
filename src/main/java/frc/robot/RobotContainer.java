@@ -4,16 +4,24 @@
 
 package frc.robot;
 
-import frc.robot.Constants.UsbPort;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IO.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -30,18 +38,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-
+  private final LEDSubsystem m_LED = new LEDSubsystem();
+  
   // Utilitys
- //private final Autos m_Autos = new Autos();
+  //private final Au tos m_Autos = new Autos();
   
   // The driver's controller
   private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
-  
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    m_LED.register();
     // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
@@ -91,6 +99,12 @@ public class RobotContainer {
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+    new JoystickButton(m_driverGamepad, Button.kA.value)
+    .onTrue(m_LED.runPatternFor(LEDPattern.solid(Color.kOrange), 2));
+
+    new JoystickButton(m_driverGamepad, Button.kB.value)
+    .whileTrue(m_LED.discoMode());
   }
 
   private void configurePathPlaner(){
