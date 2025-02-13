@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -75,7 +76,16 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-
+          
+    new JoystickButton(m_driverGamepad, Button.kRightBumper.value)
+    .whileTrue(
+      new RunCommand(
+      () -> m_DriveSubsystem.drive(
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
+          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
+          false),
+      m_DriveSubsystem));
   }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -102,7 +112,8 @@ public class RobotContainer {
     ));
 
     new JoystickButton(m_driverGamepad, Button.kA.value)
-    .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0));
+    .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
+    .withTimeout(10));
 
   }
     
