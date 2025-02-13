@@ -128,6 +128,10 @@ public class DriveSubsystem extends SubsystemBase {
     //robot postion on field
     m_Field.setRobotPose(getPose());
     SmartDashboard.putNumber("Get Heading", this.getHeading().getDegrees());
+    
+    if (this.getCurrentCommand() != null){
+      SmartDashboard.putString("", this.getCurrentCommand().getName());
+    }
   }
 
   /**
@@ -272,6 +276,20 @@ public class DriveSubsystem extends SubsystemBase {
   public Rotation2d getHeading() {
     return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0));
   }
+
+  //  /**
+  //  * Returns the heading of the robot.
+  //  *
+  //  * @return the robot's heading in degrees, from -180 to 180
+  //  */
+  // public double getHeading() {
+  //   return Rotation2d.fromDegrees(-getYaw()).getDegrees();
+  // }
+
+  
+  // public double getYaw() {
+  //   return -m_gyro.getAngle();
+  // }
 
   /**
    * Returns the turn rate of the robot.
