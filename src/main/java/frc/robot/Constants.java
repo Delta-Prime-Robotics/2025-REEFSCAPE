@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -119,9 +121,24 @@ public final class Constants {
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
   }
   
-  public final class AprilTagIds {
+  public final class AprilTagConstants {
+    public static final HashMap<Integer, Double> kID_HIGHTS = new HashMap<>(); //AprilTag Ids, AprilTag Height
+
+    static {
+      Map<Integer,Double> firstHalf = Map.of( 1, 58.50, 2, 58.50, 3, 51.25, 4, 73.54, 
+      5, 73.54, 6, 12.13, 7, 12.13, 8, 12.13, 9, 12.13, 10, 12.13);
+      Map<Integer,Double> secondHalf = Map.of(11, 12.13, 12, 58.50,13, 58.50, 14, 73.54,
+      15, 73.54, 16, 51.25, 17, 12.13, 18, 12.13, 19, 12.13, 20, 12.13);
+      kID_HIGHTS.putAll(firstHalf);
+      kID_HIGHTS.putAll(secondHalf);
+      kID_HIGHTS.put(21, 12.13);
+      kID_HIGHTS.put(22, 12.13);
+    }
+
+    
     public final class RedAlliance {
       public static final List<Integer> kReefIDs = List.of(6,7,8,9,10,11);
+      
     }
 
     public final class BlueAlliance {
