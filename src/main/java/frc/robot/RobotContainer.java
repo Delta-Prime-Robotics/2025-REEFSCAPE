@@ -5,11 +5,17 @@
 package frc.robot;
 
 import frc.robot.Constants.UsbPort;
+import frc.robot.commands.AlignAndDriveToAprilTagCommand;
 import frc.robot.commands.Autos;
+import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+
+import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -30,7 +37,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-
+  private final VisionSubsystem m_vision = new VisionSubsystem(m_DriveSubsystem);
+  private final List<Integer> coralthingy = List.of(12);
   // Utilitys
  //private final Autos m_Autos = new Autos();
   
@@ -41,8 +49,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
-    // ! Must be called after subsystems are created 
+    //For USB/Ethernet Teathering at Compation
+    PortForwarder.add(5800, "photonvision.local", 5800);
+    // ! Must be called after subsyste ms are created 
     // ! and before building auto chooser
     configurePathPlaner();
     
@@ -66,7 +75,16 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-
+          
+    new JoystickButton(m_driverGamepad, Button.kRightBumper.value)
+    .whileTrue(
+      new RunCommand(
+      () -> m_DriveSubsystem.drive(
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
+          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
+          false),
+      m_DriveSubsystem));
   }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -91,10 +109,17 @@ public class RobotContainer {
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
-  }
 
+    new JoystickButton(m_driverGamepad, Button.kA.value)
+    .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
+    .withTimeout(10));
+
+    new JoystickButton(m_driverGamepad, Button.kB.value)
+    .onTrue(new AlignAndDriveToAprilTagCommand(m_DriveSubsystem, m_vision, 12));
+  }
+    
   private void configurePathPlaner(){
-  //  NamedCommands.registerCommand(null, null);
+    //  NamedCommands.registerCommand(null, null);
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

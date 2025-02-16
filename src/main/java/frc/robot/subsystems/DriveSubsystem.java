@@ -15,6 +15,8 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,6 +26,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -62,27 +67,29 @@ public class DriveSubsystem extends SubsystemBase {
   // The gyro sensor
   public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI); 
   //public final static AHRS m_navx = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k40Hz); 
+  
+  // Define the standard deviations for the pose estimator, which determine how fast the pose
+  // estimate converges to the vision measurement. This should depend on the vision measurement
+  // noise and how many or how frequently vision measurements are applied to the pose estimator.
+  //Basicly the you are setting how much you estamate a system drifts, lower values mean less drift/more trust
+  // Matrix<N3, N1> stateStdDevs = VecBuilder.fill(1, 1, 1);
+  // Matrix<N3, N1> visionStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
+  Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(1.5)); // Meters X, Meters Y, Rotation Radians  
+  Matrix<N3, N1> visionStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
+
+  SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+  DriveConstants.kDriveKinematics,
+  getHeading(),
+  getModulePositions(),
+  new Pose2d(),
+  stateStdDevs,
+  visionStdDevs);
 
   private final Field2d m_Field = new Field2d();
-
-  // Odometry class for tracking robot pose
-  // SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-  //     DriveConstants.kDriveKinematics,
-  //     m_navx.getRotation2d(),//Rotation2d.fromDegrees(m_navx.getAngle()),
-  //     new SwerveModulePosition[] {
-  //         m_frontLeft.getPosition(),
-  //         m_frontRight.getPosition(),
-  //         m_rearLeft.getPosition(),
-  //         m_rearRight.getPosition()
-  //     });
-  SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-    DriveConstants.kDriveKinematics,
-    getHeading(),
-    getModulePositions(),
-    new Pose2d());
     
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+
     try {
       m_navx.reset();
     }
@@ -136,6 +143,10 @@ public class DriveSubsystem extends SubsystemBase {
     //robot postion on field
     m_Field.setRobotPose(getPose());
     SmartDashboard.putNumber("Get Heading", this.getHeading().getDegrees());
+    
+    if (this.getCurrentCommand() != null){
+      SmartDashboard.putString("", this.getCurrentCommand().getName());
+    }
   }
 
   /**
@@ -158,6 +169,18 @@ public class DriveSubsystem extends SubsystemBase {
       getModulePositions(),    
       pose);
   }
+
+    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
+  public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+      m_poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+  }
+
+  /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
+  public void addVisionMeasurement(
+          Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+      m_poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+  }
+
 
   /**
    * Method to drive the robot using joystick info.
@@ -191,14 +214,16 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
     if (fieldRelative)
-        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()); //m_navx.getRotation2d()
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation()); 
     
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     setModuleStates(swerveModuleStates);
   }
 
-  
+  public void stop() {
+    drive(new ChassisSpeeds(0, 0, 0), false);
+  }
 
   /**
    * Sets the wheels into an X formation to prevent movement.
@@ -278,8 +303,23 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees
    */
   public Rotation2d getHeading() {
-    return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0));
+    return Rotation2d.fromDegrees(m_navx.getAngle() * (DriveConstants.kGyroReversed ? -1.0 : 1.0)); 
+    //change to getYaw to line up with standered cordnate geomotry
   }
+
+  //  /**
+  //  * Returns the heading of the robot.
+  //  *
+  //  * @return the robot's heading in degrees, from -180 to 180
+  //  */
+  // public double getHeading() {
+  //   return Rotation2d.fromDegrees(-getYaw()).getDegrees();
+  // }
+
+  
+  // public double getYaw() {
+  //   return -m_gyro.getAngle();
+  // }
 
   /**
    * Returns the turn rate of the robot.

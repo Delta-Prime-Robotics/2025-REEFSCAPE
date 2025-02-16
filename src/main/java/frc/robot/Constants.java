@@ -4,11 +4,24 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -88,7 +101,52 @@ public final class Constants {
     public static final int kNeoSetCurrent = 50;//amps
     public static final int kVortexSetCurrent = 50;//amps
   }
+
+  public static final class VisionConstants {
+    public static final String kCameraName = "Jarvis";
+
+    // Cam mounted facing forward, half a meter forward of center, half a meter up from center,
+    // pitched upward.
+    private static final double camPitch = Units.degreesToRadians(30.0);
+    public static final Transform3d kRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, -camPitch, 0));
+
+    public static final AprilTagFieldLayout kTagLayout =
+              AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+    // The standard deviations of our vision estimated poses, which affect correction rate
+    // (Fake values. Experiment and determine estimation noise on an actual robot.)
+    // Meters X, Meters Y, Rotation Radians 
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+  }
   
+  public final class AprilTagConstants {
+    public static final HashMap<Integer, Double> kID_HIGHTS = new HashMap<>(); //AprilTag Ids, AprilTag Height
+
+    static {
+      Map<Integer,Double> firstHalf = Map.of( 1, 58.50, 2, 58.50, 3, 51.25, 4, 73.54, 
+      5, 73.54, 6, 12.13, 7, 12.13, 8, 12.13, 9, 12.13, 10, 12.13);
+      Map<Integer,Double> secondHalf = Map.of(11, 12.13, 12, 58.50,13, 58.50, 14, 73.54,
+      15, 73.54, 16, 51.25, 17, 12.13, 18, 12.13, 19, 12.13, 20, 12.13);
+      kID_HIGHTS.putAll(firstHalf);
+      kID_HIGHTS.putAll(secondHalf);
+      kID_HIGHTS.put(21, 12.13);
+      kID_HIGHTS.put(22, 12.13);
+    }
+
+    
+    public final class RedAlliance {
+      public static final List<Integer> kReefIDs = List.of(6,7,8,9,10,11);
+      
+    }
+
+    public final class BlueAlliance {
+      public static final List<Integer> kReefIDs = List.of(17,18,19,20,21,22);
+    }
+
+  }
+
   /*Usb port Constants for Laptop */
   public final class UsbPort {
     public static final double kDriveDeadband = 0.05;
