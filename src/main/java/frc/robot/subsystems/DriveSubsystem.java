@@ -72,8 +72,10 @@ public class DriveSubsystem extends SubsystemBase {
   // estimate converges to the vision measurement. This should depend on the vision measurement
   // noise and how many or how frequently vision measurements are applied to the pose estimator.
   //Basicly the you are setting how much you estamate a system drifts, lower values mean less drift/more trust
+  // Matrix<N3, N1> stateStdDevs = VecBuilder.fill(1, 1, 1);
+  // Matrix<N3, N1> visionStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
   Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(1.5)); // Meters X, Meters Y, Rotation Radians  
-  Matrix<N3, N1> visionStdDevs = VecBuilder.fill(1, 1, 1);
+  Matrix<N3, N1> visionStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
 
   SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
   DriveConstants.kDriveKinematics,

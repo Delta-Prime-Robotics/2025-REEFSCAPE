@@ -51,7 +51,6 @@ public class RobotContainer {
   public RobotContainer() {
     //For USB/Ethernet Teathering at Compation
     PortForwarder.add(5800, "photonvision.local", 5800);
-    m_vision.register();
     // ! Must be called after subsyste ms are created 
     // ! and before building auto chooser
     configurePathPlaner();
