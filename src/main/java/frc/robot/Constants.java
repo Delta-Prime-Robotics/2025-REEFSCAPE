@@ -92,6 +92,8 @@ public final class Constants {
   /*Usb port Constants for Laptop */
   public final class UsbPort {
     public static final double kDriveDeadband = 0.05;
+    public static final double kBabyModeWeight = 0.85;
+
     public static final int kTestingControler = 1;
     public static final int kOperatorControler = 2; // Change this to 
     public static final int kDriveControler = 3;// Change this to kDriveControler

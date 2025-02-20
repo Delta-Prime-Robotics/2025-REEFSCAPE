@@ -75,10 +75,10 @@ public class RobotContainer {
     .whileTrue(
       new RunCommand(
       () -> m_DriveSubsystem.drive(
-          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband),
-          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband),
-          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
-          false),
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
+          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)*UsbPort.kBabyModeWeight,
+          true),
       m_DriveSubsystem));
   }
   /**
