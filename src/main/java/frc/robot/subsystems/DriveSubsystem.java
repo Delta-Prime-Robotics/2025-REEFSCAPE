@@ -210,7 +210,10 @@ public class DriveSubsystem extends SubsystemBase {
     setModuleStates(swerveModuleStates);
   }
 
-  
+  public void stop() {
+    drive(new ChassisSpeeds(0, 0, 0), false);
+  }
+
 
   /**
    * Sets the wheels into an X formation to prevent movement.
