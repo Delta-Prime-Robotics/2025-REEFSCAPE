@@ -59,8 +59,9 @@ public final class Configs {
 
     public static final class Capstan {
       public static final SparkMaxConfig elevatorConfig = new SparkMaxConfig(); //NEO
-      public static final SparkMaxConfig wristConfig = new SparkMaxConfig(); //NEO
-      
+      public static final SparkMaxConfig algaeWristConfig = new SparkMaxConfig(); //NEO
+      public static final SparkMaxConfig coralWristConfig = new SparkMaxConfig(); //NEO 550
+
       static{
         elevatorConfig
           .idleMode(IdleMode.kCoast)
@@ -69,11 +70,9 @@ public final class Configs {
         elevatorConfig.encoder
           .positionConversionFactor(0)
           .velocityConversionFactor(0);
-        elevatorConfig.limitSwitch
-          .reverseLimitSwitchType(Type.kNormallyOpen);
         elevatorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-          .pidf(0,0,0,1/MotorConstants.kNeoFreeSpeedRpm)
+          .pid(0,0,0)
           .outputRange(-1, 1);
         // .maxMotion
         //   .allowedClosedLoopError(0.5)
@@ -81,21 +80,31 @@ public final class Configs {
         //   .maxVelocity(0)
         //   .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
 
-        wristConfig
+        algaeWristConfig
           .idleMode(IdleMode.kCoast)
           .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
-        wristConfig.encoder
-          .positionConversionFactor(0)
-          .velocityConversionFactor(0);
-        wristConfig.closedLoop
+        // algaeWristConfig.encoder
+        //   .positionConversionFactor(0)
+        //   .velocityConversionFactor(0);
+        algaeWristConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-          .pidf(0,0,0, 1/MotorConstants.kNeoFreeSpeedRpm)
+          .pid(0,0,0)
           .outputRange(-1, 1);
         // .maxMotion
         //   .allowedClosedLoopError(0.25)
         //   .maxAcceleration(0)
         //   .maxVelocity(0);
-
+        coralWristConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(MotorConstants.kNeo550SetCurrent);
+        coralWristConfig.closedLoop
+          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .pid(0, 0, 0)
+          .outputRange(-1, 1);
+        // .maxMotion
+        //   .allowedClosedLoopError(0.25)
+        //   .maxAcceleration(0)
+        //   .maxVelocity(0);
       }
     }
 }

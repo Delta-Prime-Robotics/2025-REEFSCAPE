@@ -78,8 +78,10 @@ public final class Constants {
 
 
   public static final class CapstanConstants {
-    public static final int kElevatorCanId = 18;
-    public static final int kWristCanId = 19;
+    public static final int kElevatorLeaderCanId = 18;
+    public static final int kElevatorFollowerCanId = 19;
+    public static final int kAlgaeWristCanId = 20;
+    public static final int kCoralWristCanId = 21;
 
     public static final double kWristMotorReduction = 1.0;
     public static final double kElevatorMotorReduction = 1.0;
@@ -96,8 +98,20 @@ public final class Constants {
       public static final double kL4 = 0;
     }
 
-    public static final class WristSetpoints {
-      // Elevator Positions
+    public static final class AlgaeWristSetpoints {
+      // Algae Wrist Positions
+      public static final double kStore = 0;
+      public static final double kFeederStation = 0;
+      public static final double kProcessor = 0;
+      public static final double kNet = 0;
+      public static final double kL1 = 0;
+      public static final double kL2 = 0;
+      public static final double kL3 = 0;
+      public static final double kL4 = 0;
+    }
+
+    public static final class CoralWristSetpoints {
+      //Coral Wrist Positions
       public static final double kStore = 0;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
