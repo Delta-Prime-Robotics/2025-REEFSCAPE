@@ -7,14 +7,17 @@ package frc.robot;
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Haptics;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -35,8 +38,10 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
-  
+  private final CommandXboxController  m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
+  private final Haptics m_driverHaptics = new Haptics(m_driverGamepad.getHID());
+
+  private static boolean override_bool = false;
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -51,7 +56,9 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureDefaultCommands();
     configureBindings();
-    
+    SmartDashboard.putBoolean("Coral", false);
+    SmartDashboard.putBoolean("Algae", false);
+    SmartDashboard.putBoolean("Override", override_bool);
     SmartDashboard.putData("PathPlaner Chooser", m_pathChooser);
   }
   
@@ -66,8 +73,8 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-
   }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -79,18 +86,30 @@ public class RobotContainer {
    */
   private void configureBindings() {
     //Drive Subsystem Bindings
-    
-    new JoystickButton(m_driverGamepad, Button.kBack.value)
+    Trigger TCoral = new Trigger(()-> SmartDashboard.getBoolean("Coral", false));
+    Trigger TAlgae = new Trigger(()-> SmartDashboard.getBoolean("Algae", false));
+
+    m_driverGamepad.back()
     .onTrue(new InstantCommand(
-      () ->m_DriveSubsystem.zeroHeading(),
+      () -> m_DriveSubsystem.zeroHeading(),
       m_DriveSubsystem
     ));
-  
-    new JoystickButton(m_driverGamepad, Button.kX.value)
+    
+    m_driverGamepad.x()
     .toggleOnTrue(new InstantCommand(
-      () ->m_DriveSubsystem.setX(),
+      () -> m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+    m_driverGamepad.leftBumper()
+    .onTrue(m_driverHaptics.coralBuzz());
+
+    m_driverGamepad.rightBumper()
+    .onTrue(m_driverHaptics.algaeBuzz());
+
+    // m_driverGamepad.b()
+    // .whileTrue(m_driverHaptics.babyModeBuzz());
+
   }
 
   private void configurePathPlaner(){
