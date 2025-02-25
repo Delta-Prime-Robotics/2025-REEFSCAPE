@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
 import au.grapplerobotics.LaserCan;
@@ -18,40 +19,29 @@ import frc.robot.Configs.CoralConfig;
 import frc.robot.Constants.CoralConstants;;
 
 public class CoralSubsystem extends SubsystemBase {
-  private static SparkMax m_coralMotor;
-  private static LaserCan m_coralLaser;
+  private final SparkMax m_coralLeader;
+  private final SparkMax m_coralFollower;
+  private final SparkMaxConfig m_followerConfig = new SparkMaxConfig();
+  //private static LaserCan m_coralLaser;
   
 
   /** Creates a new CoralSubsystem. */
   public CoralSubsystem() {
-    m_coralMotor = new SparkMax(CoralConstants.kCoralMotor, MotorType.kBrushless);
+    m_coralLeader = new SparkMax(CoralConstants.kCoralLeader, MotorType.kBrushless);
+    m_coralFollower = new SparkMax(CoralConstants.kCoralFollower, MotorType.kBrushless);
+    //m_coralLaser = new LaserCan(CoralConstants.kCoralLaser);
 
-    m_coralLaser = new LaserCan(CoralConstants.kCoralLaser);
+    m_followerConfig
+      .apply(CoralConfig.coralConfig)
+      .follow(m_coralLeader)
+      .inverted(true);
 
-    m_coralMotor.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void configurePersist(){
-    m_coralMotor.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
-
-  private double getCoralLazer_mm(){
-    LaserCan.Measurement measurement = m_coralLaser.getMeasurement();
-
-    if(measurement != null){
-      if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-        return measurement.distance_mm;
-      } 
-      else {
-        DataLogManager.log("Oh no! The target is out of range, or we can't get a reliable measurement:" + measurement.status);
-        return measurement.distance_mm; // You can still use distance_mm in here, if you're ok tolerating a clamped value or an unreliable measurement.
-      }
-    }
-    else{
-      // DataLogManager.log("Error Could Not Read LaserCan: NullPointerException");
-      // DriverStation.reportError("Error Could Not Read LaserCan: NullPointerException" , true );
-      return 0;
-    }
+    m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   /**
@@ -59,16 +49,15 @@ public class CoralSubsystem extends SubsystemBase {
    * @return true if the distance measured by the coral laser sensor is less than 10 millimeters, false otherwise.
    */
   public boolean isCoralDetected(){
-    if (getCoralLazer_mm() < 10) {return true;}
-    else {return false;}
+    return false;
   }
 
   public void setCoralMotor(double speed){
-    m_coralMotor.set(speed);
+    m_coralLeader.set(speed);
   }
 
   public void stopCoralMotor() {
-    m_coralMotor.stopMotor();
+    m_coralLeader.stopMotor();
   }
   
   public Command runCoralMotor(double speed) {
@@ -77,16 +66,16 @@ public class CoralSubsystem extends SubsystemBase {
       () -> stopCoralMotor());
   }
 
-  public Command autoIntakeCoral() {
-    return runCoralMotor(CoralConstants.kFeederStationSpeed)
-        .until(() -> isCoralDetected())
-        .finallyDo(() -> stopCoralMotor());
-  }
+  // public Command autoIntakeCoral() {
+  //   return runCoralMotor(CoralConstants.kFeederStationSpeed)
+  //       .until(() -> isCoralDetected())
+  //       .finallyDo(() -> stopCoralMotor());
+  // }
 
   public Command autoCoralSpeeds(Setpoint level){
       switch (level) {
         case kFeederStation:
-          return autoIntakeCoral();
+          return runCoralMotor(1);
         case kL1:
           return runCoralMotor(-0.25);
         case kL2:

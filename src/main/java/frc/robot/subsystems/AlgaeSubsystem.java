@@ -23,12 +23,12 @@ import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 
 public class AlgaeSubsystem extends SubsystemBase {
   //Spark Maxes
-  private static SparkMax m_algaeLeader;
-  private static SparkMax m_algaeFollower;
+  private final SparkMax m_algaeLeader;
+  private final SparkMax m_algaeFollower;
   private static SparkMaxConfig m_algaeFollowerConfig = new SparkMaxConfig();
  
   //Lasers
-  private static LaserCan m_algaeLaser;
+  private final LaserCan m_algaeLaser;
   
 
   /** Creates a new Trident. */

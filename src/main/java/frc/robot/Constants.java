@@ -111,8 +111,8 @@ public final class Constants {
 
   public final class CoralConstants {
     //CAN-ID's
-    public static final int kCoralMotor = 5;
-    public static final int kCoralLaser = 6;
+    public static final int kCoralLeader = 5;
+    public static final int kCoralFollower = 6;
     //speeds
     public static final double kFeederStationSpeed = 1.0;
     public static final double kL1Speed = -0.25;
