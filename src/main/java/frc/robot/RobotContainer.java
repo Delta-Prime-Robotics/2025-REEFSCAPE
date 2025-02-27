@@ -38,7 +38,7 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
+  private final CommandXboxController m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
   
   private final SendableChooser<Command> m_pathChooser;
 
@@ -70,14 +70,14 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-          
-    new JoystickButton(m_driverGamepad, Button.kRightBumper.value)
+    
+    m_driverGamepad.rightBumper()
     .whileTrue(
       new RunCommand(
       () -> m_DriveSubsystem.drive(
           -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
           -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
-          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)*UsbPort.kBabyModeWeight,
+          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
           true),
       m_DriveSubsystem));
   }
@@ -93,21 +93,21 @@ public class RobotContainer {
   private void configureBindings() {
     //Drive Subsystem Bindings
     
-    new JoystickButton(m_driverGamepad, Button.kBack.value)
+    m_driverGamepad.back()
     .onTrue(new InstantCommand(
       () ->m_DriveSubsystem.zeroHeading(),
       m_DriveSubsystem
     ));
   
-    new JoystickButton(m_driverGamepad, Button.kX.value)
+    m_driverGamepad.x()
     .toggleOnTrue(new InstantCommand(
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
 
-    new JoystickButton(m_driverGamepad, Button.kA.value)
-    .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
-    .withTimeout(10));
+    // m_driverGamepad.a()
+    // .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
+    // .withTimeout(10));
 
   }
 
