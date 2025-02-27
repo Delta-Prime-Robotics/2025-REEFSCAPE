@@ -6,10 +6,12 @@ package frc.robot;
 
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
+import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,14 +38,15 @@ public class RobotContainer {
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
-  private final XboxController m_driverGamepad = new XboxController(UsbPort.kDriveControler);
+  private final CommandXboxController m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
   
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
-    // ! Must be called after subsystems are created 
+    //For USB/Ethernet Teathering at Compation
+    PortForwarder.add(5800, "photonvision.local", 5800);
+    // ! Must be called after subsyste ms are created 
     // ! and before building auto chooser
     configurePathPlaner();
     
@@ -66,7 +70,16 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-
+    
+    m_driverGamepad.rightBumper()
+    .whileTrue(
+      new RunCommand(
+      () -> m_DriveSubsystem.drive(
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
+          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
+          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
+          true),
+      m_DriveSubsystem));
   }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -80,17 +93,22 @@ public class RobotContainer {
   private void configureBindings() {
     //Drive Subsystem Bindings
     
-    new JoystickButton(m_driverGamepad, Button.kBack.value)
+    m_driverGamepad.back()
     .onTrue(new InstantCommand(
       () ->m_DriveSubsystem.zeroHeading(),
       m_DriveSubsystem
     ));
   
-    new JoystickButton(m_driverGamepad, Button.kX.value)
+    m_driverGamepad.x()
     .toggleOnTrue(new InstantCommand(
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+
+    // m_driverGamepad.a()
+    // .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
+    // .withTimeout(10));
+
   }
 
   private void configurePathPlaner(){
