@@ -90,7 +90,7 @@ public final class Configs {
 
       static{
         elevatorConfig
-          .idleMode(IdleMode.kCoast)
+          .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
           //.closedLoopRampRate(0.2);
         elevatorConfig.encoder
@@ -107,13 +107,13 @@ public final class Configs {
         //   .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
 
         algaeWristConfig
-          .idleMode(IdleMode.kCoast)
+          .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
         // algaeWristConfig.encoder
         //   .positionConversionFactor(0)
         //   .velocityConversionFactor(0);
         algaeWristConfig.closedLoop
-          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+          .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
           .pid(0,0,0)
           .outputRange(-1, 1);
         // .maxMotion
@@ -121,7 +121,7 @@ public final class Configs {
         //   .maxAcceleration(0)
         //   .maxVelocity(0);
         coralWristConfig
-          .idleMode(IdleMode.kCoast)
+          .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(MotorConstants.kNeo550SetCurrent);
         coralWristConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

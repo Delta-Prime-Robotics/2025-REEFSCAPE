@@ -13,10 +13,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import au.grapplerobotics.LaserCan;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Configs.AlgaeConfig;
 import frc.robot.Constants.AlgaeConstants;
 import frc.robot.subsystems.CapstanSubsystem.Setpoint;
@@ -29,13 +32,18 @@ public class AlgaeSubsystem extends SubsystemBase {
  
   //Lasers
   private final LaserCan m_algaeLaser;
-  
+
+  private final CapstanSubsystem m_Capstan;
+  private Setpoint m_CurrentSetpoint;
 
   /** Creates a new Trident. */
-  public AlgaeSubsystem() {
+  public AlgaeSubsystem(CapstanSubsystem capstan) {
+    this.m_Capstan = capstan;
+    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
+
     m_algaeLeader = new SparkMax(AlgaeConstants.kAlgaeLeader, MotorType.kBrushless);
     m_algaeFollower = new SparkMax(AlgaeConstants.kAlgaeFollower, MotorType.kBrushless);
-    
+
     // RegionOfInterest roi = new RegionOfInterest(0, 0, 0, 0);
     m_algaeLaser = new LaserCan(AlgaeConstants.kAlgaeLaser); //.setRegionOfInterest();
 
@@ -67,7 +75,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
     else{
       // DataLogManager.log("Error Could Not Read LaserCan: NullPointerException");
-      // DriverStation.reportError("Error Could Not Read LaserCan: NullPointerException" , true );
+      DriverStation.reportError("Error Could Not Read LaserCan: NullPointerException" , true );
       return 0;
     }
   }
@@ -95,8 +103,13 @@ public class AlgaeSubsystem extends SubsystemBase {
       ()-> stopMotors());
   }
 
-  public Command runAlgaeManually(double speed, BooleanSupplier reversed) {
-    return new ConditionalCommand(runAlgaeMotors(speed*-1.0), runAlgaeMotors(speed), reversed);
+  public void runAlgaeManually(double speed) {
+    double currentSetSpeed = 0;
+    // if(!MathUtil.isNear(currentSetSpeed, speed, 0.05)){
+    if(speed != currentSetSpeed){
+      currentSetSpeed = speed;
+      setMotors(speed);
+    }
   }
 
   public Command autoIntakeAlgae() {
@@ -113,8 +126,10 @@ public class AlgaeSubsystem extends SubsystemBase {
     return runAlgaeMotors(AlgaeConstants.kNetSpeed);
   }
 
-  public Command autoAlgaeSpeeds(Setpoint level) {
-    switch (level) {
+  // public Command autoAlgaeSpeeds(Setpoint level) {
+  //   switch (level) {
+  public Command autoAlgaeSpeeds() {
+    switch (m_CurrentSetpoint) {
       case kNet:
         return outToNet();
       case kProcessor:
@@ -132,6 +147,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
+    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
     // This method will be called once per scheduler run
   }
 }

@@ -21,7 +21,7 @@ public class ManualAlgaeCommand extends Command {
 
   /** Creates a new ManualAlgaeCommand. 
    * @param AlgaeSubsystem */
-  public ManualAlgaeCommand(double speed, BooleanSupplier reversed, AlgaeSubsystem algaeSubsystem) {
+  public ManualAlgaeCommand(double speed, Trigger reversed, AlgaeSubsystem algaeSubsystem) {
     m_algae = algaeSubsystem;
     m_reverse = reversed.getAsBoolean();
     m_speed = speed;

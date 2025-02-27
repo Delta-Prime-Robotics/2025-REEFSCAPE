@@ -17,6 +17,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.Capstan;
+import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
+import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
+import frc.robot.Constants.CapstanConstants.ElevatorSetpoints;
+
 import static frc.robot.Constants.CapstanConstants.*;
 
 public class CapstanSubsystem extends SubsystemBase {
@@ -113,6 +117,24 @@ public class CapstanSubsystem extends SubsystemBase {
     } else if (!isElevatorAtBottom()) {
       wasResetByLimit = false;
     }
+  }
+
+  public Command runAlgaeWrist(double speed){
+    return startEnd(
+      ()-> m_algaeWristMotor.set(speed),
+      ()-> m_algaeWristMotor.stopMotor());
+  }
+
+  public Command runCoralWrist(double speed){
+    return startEnd(
+      ()-> m_coralWristMotor.set(speed),
+      ()-> m_coralWristMotor.stopMotor());
+  }
+
+  public Command runElevator(double speed) {
+    return startEnd(
+      ()-> m_elevatorLeader.set(speed),
+      ()-> m_elevatorLeader.stopMotor());
   }
 
   /**

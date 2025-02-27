@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -12,7 +14,9 @@ import com.revrobotics.spark.SparkMax;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 import frc.robot.Configs.CoralConfig;
@@ -24,9 +28,14 @@ public class CoralSubsystem extends SubsystemBase {
   private final SparkMaxConfig m_followerConfig = new SparkMaxConfig();
   //private static LaserCan m_coralLaser;
   
+  private final CapstanSubsystem m_Capstan;
+  private Setpoint m_CurrentSetpoint;
 
   /** Creates a new CoralSubsystem. */
-  public CoralSubsystem() {
+  public CoralSubsystem(CapstanSubsystem capstan) {
+    this.m_Capstan = capstan;
+    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
+
     m_coralLeader = new SparkMax(CoralConstants.kCoralLeader, MotorType.kBrushless);
     m_coralFollower = new SparkMax(CoralConstants.kCoralFollower, MotorType.kBrushless);
     //m_coralLaser = new LaserCan(CoralConstants.kCoralLaser);
@@ -66,14 +75,18 @@ public class CoralSubsystem extends SubsystemBase {
       () -> stopCoralMotor());
   }
 
+  public Command runCoralManually(double speed, BooleanSupplier reversed) {
+    return new ConditionalCommand(runCoralMotor(speed*-1.0), runCoralMotor(speed), reversed);
+  }
+
   // public Command autoIntakeCoral() {
   //   return runCoralMotor(CoralConstants.kFeederStationSpeed)
   //       .until(() -> isCoralDetected())
   //       .finallyDo(() -> stopCoralMotor());
   // }
 
-  public Command autoCoralSpeeds(Setpoint level){
-      switch (level) {
+  public Command autoCoralSpeeds(){
+      switch (m_CurrentSetpoint) {
         case kFeederStation:
           return runCoralMotor(1);
         case kL1:
@@ -91,6 +104,7 @@ public class CoralSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
     // This method will be called once per scheduler run
   }
 }

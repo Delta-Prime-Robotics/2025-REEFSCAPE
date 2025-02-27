@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ManualAlgaeCommand;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.CapstanSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
@@ -33,10 +34,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-  private final CapstanSubsystem m_CapstanSubsystem = new CapstanSubsystem();
-  private final AlgaeSubsystem m_AlgaeSubsystem = new AlgaeSubsystem();
-  private final CoralSubsystem m_CoralSubsystem = new CoralSubsystem();
+  private final DriveSubsystem m_DriveSubsystem;
+  private final CapstanSubsystem m_CapstanSubsystem;
+  private final AlgaeSubsystem m_AlgaeSubsystem;
+  private final CoralSubsystem m_CoralSubsystem;
 
   // Utilitys
  //private final Autos m_Autos = new Autos();
@@ -46,13 +47,16 @@ public class RobotContainer {
   private final CommandXboxController m_operatorGamepad = new CommandXboxController(UsbPort.kOperatorControler);
   private final CommandXboxController m_testingGampepad = new CommandXboxController(UsbPort.kTestingControler);
 
-  private boolean op_Override = false;
-
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    m_DriveSubsystem = new DriveSubsystem();
+    m_CapstanSubsystem = new CapstanSubsystem();
+    m_AlgaeSubsystem = new AlgaeSubsystem(m_CapstanSubsystem);
+    m_CoralSubsystem = new CoralSubsystem(m_CapstanSubsystem);
+
+
     // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
@@ -103,15 +107,32 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
-    m_operatorGamepad.back()
-    .and(m_operatorGamepad.povDown())
-    .toggleOnTrue(new InstantCommand(()-> op_Override = true).finallyDo(()-> op_Override = false));
+    m_AlgaeSubsystem.setDefaultCommand
+    (new RunCommand(()-> m_AlgaeSubsystem.runAlgaeManually(m_operatorGamepad.getLeftY()), m_AlgaeSubsystem));
 
+    m_operatorGamepad.x()
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.2));
+
+    m_operatorGamepad.a()
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(-0.1));
+
+    m_operatorGamepad.y()
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(0.2));
+
+    m_operatorGamepad.b()
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(-0.1));
+
+    m_operatorGamepad.povUp()
+    .whileTrue(m_CapstanSubsystem.runElevator(0.2));
+
+    m_operatorGamepad.povDown()
+    .whileTrue(m_CapstanSubsystem.runElevator(-0.005));
   }
 
   private void configurePathPlaner(){
   //  NamedCommands.registerCommand(null, null);
   }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
