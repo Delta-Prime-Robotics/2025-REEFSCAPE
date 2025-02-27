@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Configs.AlgaeConfig;
 import frc.robot.Configs.Capstan;
 import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
 import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
@@ -80,17 +81,26 @@ public class CapstanSubsystem extends SubsystemBase {
       .follow(kElevatorLeaderCanId)
       .inverted(true);
     
-    m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    configurePersist();
 
     m_elevatorEncoder.setPosition(0);
     // m_wristEncoder.setPosition(0);
 
     m_hallSensor = new DigitalInput(0);
-
   }
+
+  public void configurePersist(){
+    m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+
 
   public boolean isElevatorAtBottom() {
     return m_hallSensor.get();

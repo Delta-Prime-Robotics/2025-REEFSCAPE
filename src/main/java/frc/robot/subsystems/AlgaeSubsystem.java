@@ -52,8 +52,9 @@ public class AlgaeSubsystem extends SubsystemBase {
       .follow(m_algaeLeader)
       .inverted(true);
 
-    m_algaeLeader.configure(AlgaeConfig.algaeConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    m_algaeFollower.configure(m_algaeFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_algaeLeader.configure(AlgaeConfig.algaeConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_algaeFollower.configure(m_algaeFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    configurePersist();
   }
 
   public void configurePersist(){

@@ -45,12 +45,14 @@ public class CoralSubsystem extends SubsystemBase {
       .follow(m_coralLeader)
       .inverted(true);
 
-    m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    // m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    configurePersist();
   }
 
   public void configurePersist(){
     m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_coralFollower.configure(m_followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   /**

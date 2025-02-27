@@ -14,6 +14,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -55,6 +56,8 @@ public class RobotContainer {
     m_CapstanSubsystem = new CapstanSubsystem();
     m_AlgaeSubsystem = new AlgaeSubsystem(m_CapstanSubsystem);
     m_CoralSubsystem = new CoralSubsystem(m_CapstanSubsystem);
+    
+    DriverStation.silenceJoystickConnectionWarning(true);
 
 
     // ! Must be called after subsystems are created 
