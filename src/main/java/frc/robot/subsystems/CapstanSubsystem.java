@@ -89,7 +89,7 @@ public class CapstanSubsystem extends SubsystemBase {
   }
   
   private double getElevatorPostion() {
-    return m_elevatorEncoder.getPosition();
+    return -m_elevatorEncoder.getPosition();
   }
   
   private double getElevatorVelocity() {
@@ -113,13 +113,17 @@ public class CapstanSubsystem extends SubsystemBase {
     }
   }
 
+  public void zeroElevator() {
+    m_elevatorEncoder.setPosition(0);
+  }
+
   public Command runElevator(double speed) {
       return run(()-> setSpeed(speed))
       .finallyDo(()-> stopMotors());
   }
   
   public void setSpeed(double speed) {
-    //Upper limit
+    // Upper limit
     if(getElevatorPostion() <= kUpperLimit) {
       m_elevatorLeader.set(speed);
     }
@@ -128,7 +132,7 @@ public class CapstanSubsystem extends SubsystemBase {
     }
   }
 
-  private void stopMotors() {
+  public void stopMotors() {
     m_elevatorLeader.stopMotor();
   }
 
@@ -180,7 +184,7 @@ public class CapstanSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     moveToSetpoint();
     zeroElevatorOnLimitSwitch();
-    SmartDashboard.getNumber("Elevator Position", getElevatorPostion());
-    SmartDashboard.getNumber("Elevator Velocity", getElevatorVelocity());
+    SmartDashboard.putNumber("Elevator Position", getElevatorPostion());
+    SmartDashboard.putNumber("Elevator Velocity", getElevatorVelocity());
   }
 }

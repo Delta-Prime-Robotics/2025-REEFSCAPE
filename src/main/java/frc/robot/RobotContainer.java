@@ -143,15 +143,15 @@ public class RobotContainer {
           m_operatorGamepad.getLeftTriggerAxis(),
           0.0,
           0.6)),
-      m_CapstanSubsystem));
+      m_CapstanSubsystem).finallyDo(()->m_CapstanSubsystem.stopMotors()));
 
-    m_operatorGamepad.rightTrigger(0.05)
-    .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
-      -MathUtil.clamp(
-          m_operatorGamepad.getLeftTriggerAxis(),
-          0.0,
-          0.6)),
-      m_CapstanSubsystem));
+    // m_operatorGamepad.rightTrigger(0.05)
+    // .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
+    //   -MathUtil.clamp(
+    //       m_operatorGamepad.getLeftTriggerAxis(),
+    //       0.0,
+    //       0.6)),
+    //   m_CapstanSubsystem).finallyDo(()->m_CapstanSubsystem.stopMotors()));
 
     m_operatorGamepad.x()
     .whileTrue(m_WristsSubsystem.runAlgaeWrist(0.5));

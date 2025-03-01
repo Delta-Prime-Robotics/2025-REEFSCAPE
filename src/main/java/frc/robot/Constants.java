@@ -86,7 +86,7 @@ public final class Constants {
     public static final double kWristMotorReduction = 1.0;
     public static final double kElevatorMotorReduction = 1.0;
 
-    public static final double kUpperLimit = 0.0;
+    public static final int kUpperLimit = 116;
 
     public static final class ElevatorSetpoints {
       // Elevator Positions
