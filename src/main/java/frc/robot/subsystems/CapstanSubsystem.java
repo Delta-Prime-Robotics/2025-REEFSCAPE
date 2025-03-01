@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.AlgaeConfig;
@@ -86,6 +87,14 @@ public class CapstanSubsystem extends SubsystemBase {
   public Setpoint curentCapstanSetpoint() {
     return currentSetpoint;
   }
+  
+  private double getElevatorPostion() {
+    return m_elevatorEncoder.getPosition();
+  }
+  
+  private double getElevatorVelocity() {
+    return m_elevatorEncoder.getVelocity();
+  }
 
   private void moveToSetpoint() {
     m_elevatorPIDController.setReference(elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
@@ -105,8 +114,22 @@ public class CapstanSubsystem extends SubsystemBase {
   }
 
   public Command runElevator(double speed) {
-    return run(()-> m_elevatorLeader.set(speed))
-      .finallyDo(()-> m_elevatorLeader.stopMotor());
+      return run(()-> setSpeed(speed))
+      .finallyDo(()-> stopMotors());
+  }
+  
+  public void setSpeed(double speed) {
+    //Upper limit
+    if(getElevatorPostion() <= kUpperLimit) {
+      m_elevatorLeader.set(speed);
+    }
+    else {
+      stopMotors();
+    }
+  }
+
+  private void stopMotors() {
+    m_elevatorLeader.stopMotor();
   }
 
   /**
@@ -157,5 +180,7 @@ public class CapstanSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     moveToSetpoint();
     zeroElevatorOnLimitSwitch();
+    SmartDashboard.getNumber("Elevator Position", getElevatorPostion());
+    SmartDashboard.getNumber("Elevator Velocity", getElevatorVelocity());
   }
 }

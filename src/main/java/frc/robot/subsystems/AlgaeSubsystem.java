@@ -130,8 +130,6 @@ public class AlgaeSubsystem extends SubsystemBase {
   //       return runOnce(()-> stopMotors());
   //   }
   // }
-
-
   
   @Override
   public void periodic() {

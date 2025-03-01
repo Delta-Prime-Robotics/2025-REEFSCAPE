@@ -86,6 +86,8 @@ public final class Constants {
     public static final double kWristMotorReduction = 1.0;
     public static final double kElevatorMotorReduction = 1.0;
 
+    public static final double kUpperLimit = 0.0;
+
     public static final class ElevatorSetpoints {
       // Elevator Positions
       public static final double kStore = 0;
@@ -144,8 +146,7 @@ public final class Constants {
     public static final double kNetSpeed = -1.0;
     public static final double kProcessorSpeed = -0.5;
     public static final double kReefSpeed = 1.0;
-
-  }
+  } 
 
 
   public static final class MotorConstants {
