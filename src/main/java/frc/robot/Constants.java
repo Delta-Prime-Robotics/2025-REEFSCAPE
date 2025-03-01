@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -43,7 +40,7 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    // SPARK MAX CAN IDs
+    // SPARK MAX CAN IDs 10-17
     public static final int kFrontLeftDrivingCanId = 11;
     public static final int kRearLeftDrivingCanId = 13;
     public static final int kFrontRightDrivingCanId = 15;
@@ -77,18 +74,93 @@ public final class Constants {
     public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
     public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
         / kDrivingMotorReduction;
+  }
+
+
+  public static final class CapstanConstants {
+    public static final int kElevatorLeaderCanId = 18;
+    public static final int kElevatorFollowerCanId = 19;
+    public static final int kAlgaeWristCanId = 20;
+    public static final int kCoralWristCanId = 21;
+
+    public static final double kWristMotorReduction = 1.0;
+    public static final double kElevatorMotorReduction = 1.0;
+
+    public static final class ElevatorSetpoints {
+      // Elevator Positions
+      public static final double kStore = 0;
+      public static final double kFeederStation = 0;
+      public static final double kProcessor = 0;
+      public static final double kNet = 0;
+      public static final double kL1 = 0;
+      public static final double kL2 = 0;
+      public static final double kL3 = 0;
+      public static final double kL4 = 0;
+    }
+
+    public static final class AlgaeWristSetpoints {
+      // Algae Wrist Positions
+      public static final double kStore = 0;
+      public static final double kFeederStation = 0;
+      public static final double kProcessor = 0;
+      public static final double kNet = 0;
+      public static final double kL1 = 0;
+      public static final double kL2 = 0;
+      public static final double kL3 = 0;
+      public static final double kL4 = 0;
+    }
+
+    public static final class CoralWristSetpoints {
+      //Coral Wrist Positions
+      public static final double kStore = 0;
+      public static final double kFeederStation = 0;
+      public static final double kProcessor = 0;
+      public static final double kNet = 0;
+      public static final double kL1 = 0;
+      public static final double kL2 = 0;
+      public static final double kL3 = 0;
+      public static final double kL4 = 0;
+    }
+  }
+
+  public final class CoralConstants {
+    //CAN-ID's
+    public static final int kCoralLeader = 5;
+    public static final int kCoralFollower = 6;
+    //speeds
+    public static final double kFeederStationSpeed = 1.0;
+    public static final double kL1Speed = -0.25;
+    public static final double kL2Speed = -0.5;
+    public static final double kL3Speed = -0.75;
+    public static final double kL4Speed = -1.0;
+  }
+
+  public final class AlgaeConstants {
+    //CAN-ID's
+    public static final int kAlgaeLeader = 7;
+    public static final int kAlgaeFollower = 8;
+    public static final int kAlgaeLaser = 9;
+    //speeds
+    public static final double kNetSpeed = -1.0;
+    public static final double kProcessorSpeed = -0.5;
+    public static final double kReefSpeed = 1.0;
 
   }
 
+
   public static final class MotorConstants {
-    public static final double kNeoFreeSpeedRpm = 5676;
-    public static final double kVortexFreeSpeedRpm = 6784;
-    //smart Current Limits
+    //Kv Values
+    public static final int kVortexKv = 565;
+    //Free Speeds
+    public static final int kNeoFreeSpeedRpm = 5676;
+    public static final int kVortexFreeSpeedRpm = 6784;
+    //Smart Current Limits
     public static final int kNeo550SetCurrent = 20;//amps
     public static final int kNeoSetCurrent = 50;//amps
     public static final int kVortexSetCurrent = 50;//amps
   }
   
+
   /*Usb port Constants for Laptop */
   public final class UsbPort {
     public static final double kDriveDeadband = 0.05;
@@ -99,6 +171,7 @@ public final class Constants {
     public static final int kDriveControler = 3;// Change this to kDriveControler
     // public static final int kFlightJoystick = 4;
   }
+
   /** Constants for the gamepad joysticks & buttons */ 
   public static final class GamePad {
     // Joysticks and their axes

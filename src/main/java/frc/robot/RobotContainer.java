@@ -7,16 +7,22 @@ package frc.robot;
 import frc.robot.Constants.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.commands.MoveByDistanceCommand;
+import frc.robot.commands.ManualAlgaeCommand;
+import frc.robot.subsystems.AlgaeSubsystem;
+import frc.robot.subsystems.CapstanSubsystem;
+import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -32,14 +38,19 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
+  private final DriveSubsystem m_DriveSubsystem;
+  private final CapstanSubsystem m_CapstanSubsystem;
+  private final AlgaeSubsystem m_AlgaeSubsystem;
+  private final CoralSubsystem m_CoralSubsystem;
 
   // Utilitys
  //private final Autos m_Autos = new Autos();
   
   // The driver's controller
   private final CommandXboxController m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
-  
+  private final CommandXboxController m_operatorGamepad = new CommandXboxController(UsbPort.kOperatorControler);
+  private final CommandXboxController m_testingGampepad = new CommandXboxController(UsbPort.kTestingControler);
+
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -47,6 +58,15 @@ public class RobotContainer {
     //For USB/Ethernet Teathering at Compation
     PortForwarder.add(5800, "photonvision.local", 5800);
     // ! Must be called after subsyste ms are created 
+    m_DriveSubsystem = new DriveSubsystem();
+    m_CapstanSubsystem = new CapstanSubsystem();
+    m_AlgaeSubsystem = new AlgaeSubsystem(m_CapstanSubsystem);
+    m_CoralSubsystem = new CoralSubsystem(m_CapstanSubsystem);
+    
+    DriverStation.silenceJoystickConnectionWarning(true);
+
+
+    // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
     
@@ -105,15 +125,38 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
-    // m_driverGamepad.a()
-    // .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
-    // .withTimeout(10));
+    m_AlgaeSubsystem.setDefaultCommand(new RunCommand(
+      ()->m_AlgaeSubsystem.setMotors(m_operatorGamepad.getLeftY()),
+       m_AlgaeSubsystem));
 
+    m_CoralSubsystem.setDefaultCommand(new RunCommand(
+    ()->m_CoralSubsystem.setMotor(m_operatorGamepad.getRightY()),
+      m_CoralSubsystem));
+
+
+    m_operatorGamepad.x()
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.5));
+
+    m_operatorGamepad.a()
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(-0.4));
+
+    m_operatorGamepad.y()
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(0.3));
+
+    m_operatorGamepad.b()
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(-0.3));
+
+    m_operatorGamepad.leftBumper()
+    .whileTrue(m_CapstanSubsystem.runElevator(0.5));
+
+    m_operatorGamepad.rightBumper()
+    .whileTrue(m_CapstanSubsystem.runElevator(-0.5));
   }
 
   private void configurePathPlaner(){
   //  NamedCommands.registerCommand(null, null);
   }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
