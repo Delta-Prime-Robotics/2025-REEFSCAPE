@@ -87,7 +87,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   }
 
   public void setMotors(double speed) {
-    m_algaeLeader.set(speed);
+    m_algaeLeader.set(-speed);
   } 
 
   public void stopMotors() {
@@ -98,6 +98,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     return run(()-> setMotors(speed))
     .finallyDo(()-> stopMotors());
   }
+
 
   public Command autoIntakeAlgae() {
     return runAlgaeMotors(AlgaeConstants.kReefSpeed)

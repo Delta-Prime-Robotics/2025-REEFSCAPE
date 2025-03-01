@@ -110,6 +110,14 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
+    m_AlgaeSubsystem.setDefaultCommand(new RunCommand(
+      ()->m_AlgaeSubsystem.setMotors(m_operatorGamepad.getLeftY()),
+       m_AlgaeSubsystem));
+
+    m_CoralSubsystem.setDefaultCommand(new RunCommand(
+    ()->m_CoralSubsystem.setMotor(m_operatorGamepad.getRightY()),
+      m_CoralSubsystem));
+
 
     m_operatorGamepad.x()
     .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.5));

@@ -134,7 +134,7 @@ public class CapstanSubsystem extends SubsystemBase {
   }
 
   public Command runElevator(double speed) {
-    return run(()-> m_elevatorLeader.set(-speed))
+    return run(()-> m_elevatorLeader.set(speed))
       .finallyDo(()-> m_elevatorLeader.stopMotor());
   }
 
