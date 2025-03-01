@@ -12,7 +12,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import au.grapplerobotics.LaserCan;
+// import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,7 +31,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   private static SparkMaxConfig m_algaeFollowerConfig = new SparkMaxConfig();
  
   //Lasers
-  private final LaserCan m_algaeLaser;
+  // private final LaserCan m_algaeLaser;
 
   private final CapstanSubsystem m_Capstan;
   private Setpoint m_CurrentSetpoint;
@@ -45,7 +45,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     m_algaeFollower = new SparkMax(AlgaeConstants.kAlgaeFollower, MotorType.kBrushless);
 
     // RegionOfInterest roi = new RegionOfInterest(0, 0, 0, 0);
-    m_algaeLaser = new LaserCan(AlgaeConstants.kAlgaeLaser); //.setRegionOfInterest();
+    // m_algaeLaser = new LaserCan(AlgaeConstants.kAlgaeLaser); //.setRegionOfInterest();
 
     m_algaeFollowerConfig
       .apply(AlgaeConfig.algaeConfig)
@@ -58,33 +58,33 @@ public class AlgaeSubsystem extends SubsystemBase {
   }
 
 
-  private double getAlgaeLazer_mm(){
-    LaserCan.Measurement measurement = m_algaeLaser.getMeasurement();
+  // private double getAlgaeLazer_mm(){
+  //   LaserCan.Measurement measurement = m_algaeLaser.getMeasurement();
 
-    if(measurement != null){
-      if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-        return measurement.distance_mm;
-      } 
-      else {
-        DataLogManager.log("Oh no! The target is out of range, or we can't get a reliable measurement:" + measurement.status);
-        return measurement.distance_mm; // You can still use distance_mm in here, if you're ok tolerating a clamped value or an unreliable measurement.
-      }
-    }
-    else{
-      // DataLogManager.log("Error Could Not Read LaserCan: NullPointerException");
-      DriverStation.reportError("Error Could Not Read LaserCan: NullPointerException" , true );
-      return 0;
-    }
-  }
+  //   if(measurement != null){
+  //     if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+  //       return measurement.distance_mm;
+  //     } 
+  //     else {
+  //       DataLogManager.log("Oh no! The target is out of range, or we can't get a reliable measurement:" + measurement.status);
+  //       return measurement.distance_mm; // You can still use distance_mm in here, if you're ok tolerating a clamped value or an unreliable measurement.
+  //     }
+  //   }
+  //   else{
+  //     // DataLogManager.log("Error Could Not Read LaserCan: NullPointerException");
+  //     DriverStation.reportError("Error Could Not Read LaserCan: NullPointerException" , true );
+  //     return 0;
+  //   }
+  // }
 
-  /** 
-   * Checks if algae is detected by using the algae laser sensor.
-   * @return true if algae is detected (distance is less than 20 mm), false otherwise.
-   */
-  public boolean isAlgaeDetected(){
-    if (getAlgaeLazer_mm() < 20) {return true;}
-    else {return false;}
-  }
+  // /** 
+  //  * Checks if algae is detected by using the algae laser sensor.
+  //  * @return true if algae is detected (distance is less than 20 mm), false otherwise.
+  //  */
+  // public boolean isAlgaeDetected(){
+  //   if (getAlgaeLazer_mm() < 20) {return true;}
+  //   else {return false;}
+  // }
 
   public void setMotors(double speed) {
     m_algaeLeader.set(-speed);
@@ -100,11 +100,11 @@ public class AlgaeSubsystem extends SubsystemBase {
   }
 
 
-  public Command autoIntakeAlgae() {
-    return runAlgaeMotors(AlgaeConstants.kReefSpeed)
-        .until(()-> isAlgaeDetected())
-        .finallyDo(()-> stopMotors());
-  }
+  // public Command autoIntakeAlgae() {
+  //   return runAlgaeMotors(AlgaeConstants.kReefSpeed)
+  //       .until(()-> isAlgaeDetected())
+  //       .finallyDo(()-> stopMotors());
+  // }
 
   public Command outToProcesser() { 
     return runAlgaeMotors(AlgaeConstants.kProcessorSpeed);
@@ -116,20 +116,20 @@ public class AlgaeSubsystem extends SubsystemBase {
 
   // public Command autoAlgaeSpeeds(Setpoint level) {
   //   switch (level) {
-  public Command autoAlgaeSpeeds() {
-    switch (m_CurrentSetpoint) {
-      case kNet:
-        return outToNet();
-      case kProcessor:
-        return outToProcesser();
-      case kL2:
-        return autoIntakeAlgae();
-      case kL3:
-        return autoIntakeAlgae();
-      default:
-        return runOnce(()-> stopMotors());
-    }
-  }
+  // public Command autoAlgaeSpeeds() {
+  //   switch (m_CurrentSetpoint) {
+  //     case kNet:
+  //       return outToNet();
+  //     case kProcessor:
+  //       return outToProcesser();
+  //     case kL2:
+  //       return autoIntakeAlgae();
+  //     case kL3:
+  //       return autoIntakeAlgae();
+  //     default:
+  //       return runOnce(()-> stopMotors());
+  //   }
+  // }
 
 
   
