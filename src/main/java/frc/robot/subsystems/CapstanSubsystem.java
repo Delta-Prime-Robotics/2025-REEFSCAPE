@@ -41,16 +41,9 @@ public class CapstanSubsystem extends SubsystemBase {
   private final SparkMax m_elevatorFollower;
   private final SparkMaxConfig m_ElevatorFollowerConfig = new SparkMaxConfig();
 
-  private final SparkMax m_algaeWristMotor;
-  private final SparkMax m_coralWristMotor;
-
   private final RelativeEncoder m_elevatorEncoder;
-  private final RelativeEncoder m_algaeWristEncoder;
-  private final RelativeEncoder m_coralWristEncoder;
 
   private final SparkClosedLoopController m_elevatorPIDController;
-  private final SparkClosedLoopController m_algaeWristPIDController;
-  private final SparkClosedLoopController m_coralWristPIDController;
 
   private final DigitalInput m_hallSensor;
 
@@ -65,16 +58,9 @@ public class CapstanSubsystem extends SubsystemBase {
     m_elevatorLeader = new SparkMax(kElevatorLeaderCanId, MotorType.kBrushless);
     m_elevatorFollower = new SparkMax(kElevatorFollowerCanId, MotorType.kBrushless);
 
-    m_algaeWristMotor = new SparkMax(kAlgaeWristCanId, MotorType.kBrushless);
-    m_coralWristMotor = new SparkMax(kCoralWristCanId, MotorType.kBrushless);
-
     m_elevatorEncoder = m_elevatorLeader.getEncoder();
-    m_algaeWristEncoder = m_algaeWristMotor.getEncoder();
-    m_coralWristEncoder = m_coralWristMotor.getEncoder();
     
     m_elevatorPIDController = m_elevatorLeader.getClosedLoopController();
-    m_algaeWristPIDController = m_algaeWristMotor.getClosedLoopController();
-    m_coralWristPIDController = m_coralWristMotor.getClosedLoopController();
 
     m_ElevatorFollowerConfig
       .apply(Capstan.elevatorConfig)
@@ -83,12 +69,9 @@ public class CapstanSubsystem extends SubsystemBase {
     
     // m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    // m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    // m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
 
     m_elevatorEncoder.setPosition(0);
     // m_wristEncoder.setPosition(0);
@@ -105,8 +88,6 @@ public class CapstanSubsystem extends SubsystemBase {
   }
 
   private void moveToSetpoint() {
-    m_algaeWristPIDController.setReference(algaeWristCurrentTarget, ControlType.kMAXMotionPositionControl);
-    m_coralWristPIDController.setReference(coralWristCurrentTarget, ControlType.kMAXMotionPositionControl);
     m_elevatorPIDController.setReference(elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
   }
 
@@ -121,16 +102,6 @@ public class CapstanSubsystem extends SubsystemBase {
     } else if (!isElevatorAtBottom()) {
       wasResetByLimit = false;
     }
-  }
-
-  public Command runAlgaeWrist(double speed){
-    return run(()-> m_algaeWristMotor.set(speed))
-    .finallyDo(()-> m_algaeWristMotor.stopMotor());
-  }
-
-  public Command runCoralWrist(double speed){
-    return run(()-> m_coralWristMotor.set(speed))
-    .finallyDo(()-> m_coralWristMotor.stopMotor());
   }
 
   public Command runElevator(double speed) {
@@ -148,48 +119,32 @@ public class CapstanSubsystem extends SubsystemBase {
         () -> {
           switch (setpoint) {
             case kStore:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
-              coralWristCurrentTarget = CoralWristSetpoints.kStore;
               elevatorCurrentTarget = ElevatorSetpoints.kStore;
               currentSetpoint = Setpoint.kStore;
             case kProcessor:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kProcessor;
-              coralWristCurrentTarget = CoralWristSetpoints.kProcessor;
               elevatorCurrentTarget = ElevatorSetpoints.kProcessor;
               currentSetpoint = Setpoint.kProcessor;
             case kFeederStation:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kFeederStation;
-              coralWristCurrentTarget = CoralWristSetpoints.kFeederStation;
               elevatorCurrentTarget = ElevatorSetpoints.kFeederStation;
               currentSetpoint = Setpoint.kFeederStation;
               break;
             case kNet:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kProcessor;
-              coralWristCurrentTarget = CoralWristSetpoints.kProcessor;
               elevatorCurrentTarget = ElevatorSetpoints.kProcessor;
               currentSetpoint = Setpoint.kProcessor;
               break;
             case kL1:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL1;
-              coralWristCurrentTarget = CoralWristSetpoints.kL1;
               elevatorCurrentTarget = ElevatorSetpoints.kL1;
               currentSetpoint = Setpoint.kL1;
               break;
             case kL2:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL2;
-              coralWristCurrentTarget = CoralWristSetpoints.kL2;
               elevatorCurrentTarget = ElevatorSetpoints.kL2;
               currentSetpoint = Setpoint.kL2;
               break;
             case kL3:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL3;
-              coralWristCurrentTarget = CoralWristSetpoints.kL3;
               elevatorCurrentTarget = ElevatorSetpoints.kL3;
               currentSetpoint = Setpoint.kL3;
               break;
             case kL4:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL4;
-              coralWristCurrentTarget = CoralWristSetpoints.kL4;
               elevatorCurrentTarget = ElevatorSetpoints.kL4;
               currentSetpoint = Setpoint.kL4;
               break;

@@ -12,6 +12,7 @@ import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.CapstanSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.WristsSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
@@ -42,6 +43,7 @@ public class RobotContainer {
   private final CapstanSubsystem m_CapstanSubsystem;
   private final AlgaeSubsystem m_AlgaeSubsystem;
   private final CoralSubsystem m_CoralSubsystem;
+  private final WristsSubsystem m_WristsSubsystem;
 
   // Utilitys
  //private final Autos m_Autos = new Autos();
@@ -63,6 +65,7 @@ public class RobotContainer {
     m_CapstanSubsystem = new CapstanSubsystem();
     m_AlgaeSubsystem = new AlgaeSubsystem(m_CapstanSubsystem);
     m_CoralSubsystem = new CoralSubsystem(m_CapstanSubsystem);
+    m_WristsSubsystem = new WristsSubsystem(m_CapstanSubsystem);
     
     DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -136,16 +139,16 @@ public class RobotContainer {
 
 
     m_operatorGamepad.x()
-    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.5));
+    .whileTrue(m_WristsSubsystem.runAlgaeWrist(0.5));
 
     m_operatorGamepad.a()
-    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(-0.4));
+    .whileTrue(m_WristsSubsystem.runAlgaeWrist(-0.4));
 
     m_operatorGamepad.y()
-    .whileTrue(m_CapstanSubsystem.runCoralWrist(0.3));
+    .whileTrue(m_WristsSubsystem.runCoralWrist(0.3));
 
     m_operatorGamepad.b()
-    .whileTrue(m_CapstanSubsystem.runCoralWrist(-0.3));
+    .whileTrue(m_WristsSubsystem.runCoralWrist(-0.3));
 
     m_operatorGamepad.leftBumper()
     .whileTrue(m_CapstanSubsystem.runElevator(0.5));
