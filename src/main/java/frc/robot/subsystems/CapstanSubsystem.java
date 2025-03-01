@@ -78,29 +78,23 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_ElevatorFollowerConfig
       .apply(Capstan.elevatorConfig)
-      .follow(kElevatorLeaderCanId)
-      .inverted(true);
+      .follow(kElevatorLeaderCanId, true);
+      
     
     // m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    configurePersist();
+    m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_elevatorEncoder.setPosition(0);
     // m_wristEncoder.setPosition(0);
 
     m_hallSensor = new DigitalInput(0);
   }
-
-  public void configurePersist(){
-    m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
-
-
 
   public boolean isElevatorAtBottom() {
     return m_hallSensor.get();
@@ -130,21 +124,18 @@ public class CapstanSubsystem extends SubsystemBase {
   }
 
   public Command runAlgaeWrist(double speed){
-    return startEnd(
-      ()-> m_algaeWristMotor.set(speed),
-      ()-> m_algaeWristMotor.stopMotor());
+    return run(()-> m_algaeWristMotor.set(speed))
+    .finallyDo(()-> m_algaeWristMotor.stopMotor());
   }
 
   public Command runCoralWrist(double speed){
-    return startEnd(
-      ()-> m_coralWristMotor.set(speed),
-      ()-> m_coralWristMotor.stopMotor());
+    return run(()-> m_coralWristMotor.set(speed))
+    .finallyDo(()-> m_coralWristMotor.stopMotor());
   }
 
   public Command runElevator(double speed) {
-    return startEnd(
-      ()-> m_elevatorLeader.set(speed),
-      ()-> m_elevatorLeader.stopMotor());
+    return run(()-> m_elevatorLeader.set(-speed))
+      .finallyDo(()-> m_elevatorLeader.stopMotor());
   }
 
   /**

@@ -44,17 +44,17 @@ public class ManualCoralCommand extends Command {
   public void execute() {
     //the fact that this runs repeatedly might be a problem
     if (m_reverse){
-      m_coral.setCoralMotor(m_speed * -1.0);
+      m_coral.setMotor(m_speed * -1.0);
     }
     else {
-      m_coral.setCoralMotor(m_speed);
+      m_coral.setMotor(m_speed);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_coral.stopCoralMotor();
+    m_coral.stopMotor();
   }
 
   // Returns true when the command should end.

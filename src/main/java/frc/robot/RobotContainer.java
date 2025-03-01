@@ -110,26 +110,24 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
-    m_AlgaeSubsystem.setDefaultCommand
-    (new RunCommand(()-> m_AlgaeSubsystem.runAlgaeManually(m_operatorGamepad.getLeftY()), m_AlgaeSubsystem));
 
     m_operatorGamepad.x()
-    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.2));
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(0.5));
 
     m_operatorGamepad.a()
-    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(-0.1));
+    .whileTrue(m_CapstanSubsystem.runAlgaeWrist(-0.4));
 
     m_operatorGamepad.y()
-    .whileTrue(m_CapstanSubsystem.runCoralWrist(0.2));
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(0.3));
 
     m_operatorGamepad.b()
-    .whileTrue(m_CapstanSubsystem.runCoralWrist(-0.1));
+    .whileTrue(m_CapstanSubsystem.runCoralWrist(-0.3));
 
-    m_operatorGamepad.povUp()
-    .whileTrue(m_CapstanSubsystem.runElevator(0.2));
+    m_operatorGamepad.leftBumper()
+    .whileTrue(m_CapstanSubsystem.runElevator(0.5));
 
-    m_operatorGamepad.povDown()
-    .whileTrue(m_CapstanSubsystem.runElevator(-0.005));
+    m_operatorGamepad.rightBumper()
+    .whileTrue(m_CapstanSubsystem.runElevator(-0.5));
   }
 
   private void configurePathPlaner(){

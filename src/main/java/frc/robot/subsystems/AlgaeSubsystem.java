@@ -49,18 +49,14 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     m_algaeFollowerConfig
       .apply(AlgaeConfig.algaeConfig)
-      .follow(m_algaeLeader)
-      .inverted(true);
+      .follow(m_algaeLeader,true);
 
     // m_algaeLeader.configure(AlgaeConfig.algaeConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_algaeFollower.configure(m_algaeFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    configurePersist();
-  }
-
-  public void configurePersist(){
     m_algaeLeader.configure(AlgaeConfig.algaeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_algaeFollower.configure(m_algaeFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
+
 
   private double getAlgaeLazer_mm(){
     LaserCan.Measurement measurement = m_algaeLaser.getMeasurement();
@@ -99,18 +95,8 @@ public class AlgaeSubsystem extends SubsystemBase {
   }
 
   public Command runAlgaeMotors(double speed) {
-    return startEnd(
-      ()-> setMotors(speed),
-      ()-> stopMotors());
-  }
-
-  public void runAlgaeManually(double speed) {
-    double currentSetSpeed = 0;
-    // if(!MathUtil.isNear(currentSetSpeed, speed, 0.05)){
-    if(speed != currentSetSpeed){
-      currentSetSpeed = speed;
-      setMotors(speed);
-    }
+    return run(()-> setMotors(speed))
+    .finallyDo(()-> stopMotors());
   }
 
   public Command autoIntakeAlgae() {

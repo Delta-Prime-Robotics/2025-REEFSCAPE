@@ -63,9 +63,9 @@ public final class Configs {
         algaeConfig
           .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(MotorConstants.kNeo550SetCurrent);
-        algaeConfig.encoder
-          .positionConversionFactor(0) //what gear ratio, radians
-          .velocityConversionFactor(0); // radians per second, radians/60
+        // algaeConfig.encoder
+          // .positionConversionFactor(0) //what gear ratio, radians
+          // .velocityConversionFactor(0); // radians per second, radians/60
       }
 
     }
@@ -77,9 +77,9 @@ public final class Configs {
         coralConfig
           .idleMode(IdleMode.kBrake)
           .smartCurrentLimit(MotorConstants.kNeo550SetCurrent);
-        coralConfig.encoder
-          .positionConversionFactor(0) //what gear ratio, radians
-          .velocityConversionFactor(0); // radians per second, radians/60
+        // coralConfig.encoder
+          // .positionConversionFactor(0) //what gear ratio, radians
+          // .velocityConversionFactor(0); // radians per second, radians/60
       }
     }
 
@@ -91,11 +91,12 @@ public final class Configs {
       static{
         elevatorConfig
           .idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
+          .smartCurrentLimit(MotorConstants.kNeoSetCurrent)
+          .inverted(false);
           //.closedLoopRampRate(0.2);
-        elevatorConfig.encoder
-          .positionConversionFactor(0)
-          .velocityConversionFactor(0);
+        // elevatorConfig.encoder
+          // .positionConversionFactor(0)
+          // .velocityConversionFactor(0);
         elevatorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
           .pid(0,0,0)
@@ -108,7 +109,8 @@ public final class Configs {
 
         algaeWristConfig
           .idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(MotorConstants.kNeoSetCurrent);
+          .smartCurrentLimit(MotorConstants.kNeoSetCurrent)
+          .inverted(false);;
         // algaeWristConfig.encoder
         //   .positionConversionFactor(0)
         //   .velocityConversionFactor(0);
@@ -122,7 +124,8 @@ public final class Configs {
         //   .maxVelocity(0);
         coralWristConfig
           .idleMode(IdleMode.kBrake)
-          .smartCurrentLimit(MotorConstants.kNeo550SetCurrent);
+          .smartCurrentLimit(MotorConstants.kNeo550SetCurrent)
+          .inverted(true);
         coralWristConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
           .pid(0, 0, 0)

@@ -42,15 +42,10 @@ public class CoralSubsystem extends SubsystemBase {
 
     m_followerConfig
       .apply(CoralConfig.coralConfig)
-      .follow(m_coralLeader)
-      .inverted(true);
+      .follow(m_coralLeader, true);
 
     // m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    configurePersist();
-  }
-
-  public void configurePersist(){
     m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_coralFollower.configure(m_followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
@@ -63,18 +58,17 @@ public class CoralSubsystem extends SubsystemBase {
     return false;
   }
 
-  public void setCoralMotor(double speed){
+  public void setMotor(double speed){
     m_coralLeader.set(speed);
   }
 
-  public void stopCoralMotor() {
+  public void stopMotor() {
     m_coralLeader.stopMotor();
   }
   
   public Command runCoralMotor(double speed) {
-    return this.startEnd(
-      () -> setCoralMotor(speed),
-      () -> stopCoralMotor());
+    return run(()-> setMotor(speed))
+    .finallyDo(()-> stopMotor());
   }
 
   public Command runCoralManually(double speed, BooleanSupplier reversed) {
@@ -100,7 +94,7 @@ public class CoralSubsystem extends SubsystemBase {
         case kL4:
           return runCoralMotor(-1.0);
         default:
-          return runOnce(() -> stopCoralMotor());
+          return runOnce(() -> stopMotor());
       }
   }
 
