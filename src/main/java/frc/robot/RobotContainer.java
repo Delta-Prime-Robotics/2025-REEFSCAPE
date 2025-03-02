@@ -159,11 +159,11 @@ public class RobotContainer {
     m_operatorGamepad.a()
     .whileTrue(m_WristsSubsystem.runAlgaeWrist(-0.4));
 
-    m_operatorGamepad.y()
-    .whileTrue(m_WristsSubsystem.runCoralWrist(0.3));
+    // m_operatorGamepad.y()
+    // .whileTrue(m_WristsSubsystem.runCoralWrist(0.3));
 
-    m_operatorGamepad.b()
-    .whileTrue(m_WristsSubsystem.runCoralWrist(-0.3));
+    // m_operatorGamepad.b()
+    // .whileTrue(m_WristsSubsystem.runCoralWrist(-0.3));
 
     m_operatorGamepad.leftBumper()
     .whileTrue(m_CapstanSubsystem.runElevator(0.2));
