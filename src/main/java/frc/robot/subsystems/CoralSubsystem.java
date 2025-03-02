@@ -47,7 +47,7 @@ public class CoralSubsystem extends SubsystemBase {
     // m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_coralFollower.configure(m_followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   /**
