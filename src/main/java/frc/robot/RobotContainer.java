@@ -166,7 +166,7 @@ public class RobotContainer {
     .whileTrue(m_WristsSubsystem.runCoralWrist(-0.3));
 
     m_operatorGamepad.leftBumper()
-    .whileTrue(m_CapstanSubsystem.runElevator(0.5));
+    .whileTrue(m_CapstanSubsystem.runElevator(0.2));
 
     m_operatorGamepad.rightBumper()
     .whileTrue(m_CapstanSubsystem.runElevator(-0.5));
