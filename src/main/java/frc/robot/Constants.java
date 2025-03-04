@@ -145,7 +145,7 @@ public final class Constants {
     //speeds
     public static final double kNetSpeed = -1.0;
     public static final double kProcessorSpeed = -0.5;
-    public static final double kReefSpeed = 1.0;
+    public static final double kIntakeSpeed = 1.0;
   } 
 
 

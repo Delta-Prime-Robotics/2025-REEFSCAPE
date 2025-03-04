@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -86,17 +87,25 @@ public class AlgaeSubsystem extends SubsystemBase {
   //   else {return false;}
   // }
 
-  public void setMotors(double speed) {
+  private void setMotors(double speed) {
     m_algaeLeader.set(-speed);
   } 
 
-  public void stopMotors() {
+  private void stopMotors() {
     m_algaeLeader.stopMotor();
   }
 
+  public Command manualControl(DoubleSupplier yAxis){
+    return runAlgaeMotors(yAxis.getAsDouble());
+  }
+
+  // public Command runAlgaeMotors(double speed) {
+  //   return runEnd(()-> setMotors(speed), ()-> stopMotors());
+  // }
   public Command runAlgaeMotors(double speed) {
-    return run(()-> setMotors(speed))
-    .finallyDo(()-> stopMotors());
+    return runEnd(
+      ()-> System.out.println("Running Algae"),
+     ()-> System.out.println("Algae Stopped"));
   }
 
 
@@ -107,15 +116,22 @@ public class AlgaeSubsystem extends SubsystemBase {
   // }
 
   public Command outToProcesser() { 
-    return runAlgaeMotors(AlgaeConstants.kProcessorSpeed);
+    return runAlgaeMotors(AlgaeConstants.kProcessorSpeed)
+    ;
   }
 
   public Command outToNet() {
-    return runAlgaeMotors(AlgaeConstants.kNetSpeed);
+    return runAlgaeMotors(AlgaeConstants.kNetSpeed)
+    .withName("Shooting to Net");
   }
 
-  // public Command autoAlgaeSpeeds(Setpoint level) {
-  //   switch (level) {
+  public Command intakeAlgae() {
+    return runAlgaeMotors(AlgaeConstants.kIntakeSpeed)
+    .withName("Intaking Algae");
+  }
+  
+  // // public Command autoAlgaeSpeeds(Setpoint level) {
+  // //   switch (level) {
   // public Command autoAlgaeSpeeds() {
   //   switch (m_CurrentSetpoint) {
   //     case kNet:
@@ -123,9 +139,9 @@ public class AlgaeSubsystem extends SubsystemBase {
   //     case kProcessor:
   //       return outToProcesser();
   //     case kL2:
-  //       return autoIntakeAlgae();
+  //       return intakeAlgae();
   //     case kL3:
-  //       return autoIntakeAlgae();
+  //       return intakeAlgae();
   //     default:
   //       return runOnce(()-> stopMotors());
   //   }

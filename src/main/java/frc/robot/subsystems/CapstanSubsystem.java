@@ -114,8 +114,7 @@ public class CapstanSubsystem extends SubsystemBase {
   }
 
   public Command runElevator(double speed) {
-      return run(()-> setSpeed(speed))
-      .finallyDo(()-> stopMotors());
+      return runEnd(() -> setSpeed(speed), () -> stopMotors());
   }
   
   public void setSpeed(double speed) {
@@ -172,7 +171,7 @@ public class CapstanSubsystem extends SubsystemBase {
               currentSetpoint = Setpoint.kL4;
               break;
           }
-        });
+        }).withName(setpoint.toString());
   }
 
   @Override
