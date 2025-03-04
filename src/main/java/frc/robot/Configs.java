@@ -96,8 +96,8 @@ public final class Configs {
           .inverted(false);
           //.closedLoopRampRate(0.2);
         // elevatorConfig.encoder
-          // .positionConversionFactor(0)
-          // .velocityConversionFactor(0);
+        //   .positionConversionFactor(0)
+        //   .velocityConversionFactor(0);
         elevatorConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
           .pid(0,0,0)
