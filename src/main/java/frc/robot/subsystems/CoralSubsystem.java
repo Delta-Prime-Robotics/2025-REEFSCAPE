@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -34,7 +35,7 @@ public class CoralSubsystem extends SubsystemBase {
   /** Creates a new CoralSubsystem. */
   public CoralSubsystem(CapstanSubsystem capstan) {
     this.m_Capstan = capstan;
-    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
+    m_CurrentSetpoint = m_Capstan.getCurentElevatorSetpoint();
 
     m_coralLeader = new SparkMax(CoralConstants.kCoralLeader, MotorType.kBrushless);
     m_coralFollower = new SparkMax(CoralConstants.kCoralFollower, MotorType.kBrushless);
@@ -48,6 +49,8 @@ public class CoralSubsystem extends SubsystemBase {
     // m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     m_coralLeader.configure(CoralConfig.coralConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_coralFollower.configure(m_followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+    // setDefaultCommand(runOnce(()-> stopMotors()));
   }
 
   /**
@@ -58,21 +61,21 @@ public class CoralSubsystem extends SubsystemBase {
     return false;
   }
 
-  public void setMotor(double speed){
+  private void setMotors(double speed){
     m_coralLeader.set(speed);
   }
 
-  public void stopMotor() {
+  private void stopMotors() {
     m_coralLeader.stopMotor();
   }
   
-  public Command runCoralMotor(double speed) {
-    return run(()-> setMotor(speed))
-    .finallyDo(()-> stopMotor());
+  public Command runCoralMotors(double speed) {
+    return run(()-> setMotors(speed))
+    .finallyDo(()-> stopMotors());
   }
 
-  public Command runCoralManually(double speed, BooleanSupplier reversed) {
-    return new ConditionalCommand(runCoralMotor(speed*-1.0), runCoralMotor(speed), reversed);
+  public Command manualControl(DoubleSupplier yAxis){
+    return runCoralMotors(yAxis.getAsDouble());
   }
 
   // public Command autoIntakeCoral() {
@@ -84,23 +87,23 @@ public class CoralSubsystem extends SubsystemBase {
   public Command autoCoralSpeeds(){
       switch (m_CurrentSetpoint) {
         case kFeederStation:
-          return runCoralMotor(1);
+          return runCoralMotors(1);
         case kL1:
-          return runCoralMotor(-0.25);
+          return runCoralMotors(-0.25);
         case kL2:
-          return runCoralMotor(-0.5);
+          return runCoralMotors(-0.5);
         case kL3:
-          return runCoralMotor(-0.75);
+          return runCoralMotors(-0.75);
         case kL4:
-          return runCoralMotor(-1.0);
+          return runCoralMotors(-1.0);
         default:
-          return runOnce(() -> stopMotor());
+          return runOnce(() -> stopMotors());
       }
   }
 
   @Override
   public void periodic() {
-    m_CurrentSetpoint = m_Capstan.curentCapstanSetpoint();
+    m_CurrentSetpoint = m_Capstan.getCurentElevatorSetpoint();
     // This method will be called once per scheduler run
   }
 }

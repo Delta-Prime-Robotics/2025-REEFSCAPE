@@ -109,6 +109,7 @@ public class RobotContainer {
             -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
             true),
         m_DriveSubsystem));
+
     }
 
     /**
@@ -121,11 +122,9 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-      BooleanEvent m_opOveride = new BooleanEvent(Robot.m_loop, m_operatorGamepad.x()).rising();
-      BooleanEvent m_drOveride = new BooleanEvent(Robot.m_loop, m_driverGamepad.povUp()).rising();
 
       //Drive Subsystem Bindings
-      
+      //-------------------------
       m_driverGamepad.back()
       .onTrue(new InstantCommand(
         () ->m_DriveSubsystem.zeroHeading(),
@@ -138,53 +137,58 @@ public class RobotContainer {
         m_DriveSubsystem
       ));
       
-      m_operatorGamepad.axisMagnitudeGreaterThan(Axis.kLeftY.value, UsbPort.kDriveDeadband)
+      //Algae Bindings
+      //---------------
+      //Test to see if this is working (it does seem to be working)
+
+      m_operatorGamepad.leftTrigger(0.1)
+      .whileTrue(m_AlgaeSubsystem.autoIntakeAlgae());
+
+      // m_operatorGamepad.leftBumper()
+      // .whileTrue(m_AlgaeSubsystem.outToNet());
+
+      m_operatorGamepad.x()
+      .whileTrue(m_WristsSubsystem.runAlgaeWrist(()-> 0.5));
+  
+      m_operatorGamepad.a()
+      .whileTrue(m_WristsSubsystem.runAlgaeWrist(()-> -0.4));
+  
+  
+      //Coral Bindings
+      //---------------
+      m_operatorGamepad.axisMagnitudeGreaterThan(Axis.kRightY.value, 0.5)
       .debounce(0.04)
-      .whileTrue(m_AlgaeSubsystem.manualControl(()-> m_operatorGamepad.getLeftY()));
+      .whileTrue(m_CoralSubsystem.manualControl(()-> m_operatorGamepad.getRightY()));
+
+      m_operatorGamepad.y()
+      .whileTrue(m_WristsSubsystem.runCoralWrist(()->0.3));
   
-      m_CoralSubsystem.setDefaultCommand(new RunCommand(
-      ()->m_CoralSubsystem.setMotor(m_operatorGamepad.getRightY()),
-        m_CoralSubsystem));
-  
-      m_operatorGamepad.leftTrigger(0.05)
-      .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
-        MathUtil.clamp(
-            m_operatorGamepad.getLeftTriggerAxis(),
-            0.0,
-            0.6)),
-        m_CapstanSubsystem));
-  
-      m_operatorGamepad.rightTrigger(0.05)
-      .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
-        -MathUtil.clamp(
-            m_operatorGamepad.getLeftTriggerAxis(),
-            0.0,
-            0.6)),
-        m_CapstanSubsystem));
-  
-      // m_operatorGamepad.x()
-      // .whileTrue(m_WristsSubsystem.runAlgaeWrist(0.5));
-  
-      // m_operatorGamepad.a()
-      // .whileTrue(m_WristsSubsystem.runAlgaeWrist(-0.4));
-  
-      // m_operatorGamepad.y()
-      // .whileTrue(m_WristsSubsystem.runCoralWrist(0.3));
-  
-      // m_operatorGamepad.b()
-      // .whileTrue(m_WristsSubsystem.runCoralWrist(-0.3));
-  
+      m_operatorGamepad.b()
+      .whileTrue(m_WristsSubsystem.runCoralWrist(()->-0.3));
+      
+      //Elevator Bindings
+      //------------------
       m_operatorGamepad.leftBumper()
       .whileTrue(m_CapstanSubsystem.runElevator(0.5));
   
       m_operatorGamepad.rightBumper()
       .whileTrue(m_CapstanSubsystem.runElevator(-0.5));
-      
-      m_operatorGamepad.a().and(m_opOveride)
-      .whileTrue(new PrintCommand("Sigma On"))
-      .onFalse(new PrintCommand("Sigma off"));
-      
-      m_opOveride.ifHigh(() -> System.out.println("Override On"));
+
+      // m_operatorGamepad.leftTrigger(0.05)
+      // .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
+      //   MathUtil.clamp(
+      //       m_operatorGamepad.getLeftTriggerAxis(),
+      //       0.0,
+      //       0.6)),
+      //   m_CapstanSubsystem));
+  
+      // m_operatorGamepad.rightTrigger(0.05)
+      // .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
+      //   -MathUtil.clamp(
+      //       m_operatorGamepad.getLeftTriggerAxis(),
+      //       0.0,
+      //       0.6)),
+      //   m_CapstanSubsystem));
 
   }
   

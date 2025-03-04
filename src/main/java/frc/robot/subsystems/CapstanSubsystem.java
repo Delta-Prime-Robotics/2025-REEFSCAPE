@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Configs.AlgaeConfig;
 import frc.robot.Configs.Capstan;
 import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
@@ -24,6 +25,8 @@ import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
 import frc.robot.Constants.CapstanConstants.ElevatorSetpoints;
 
 import static frc.robot.Constants.CapstanConstants.*;
+
+import java.util.function.BooleanSupplier;
 
 public class CapstanSubsystem extends SubsystemBase {
   /** Subsystem-wide setpoints */
@@ -50,8 +53,7 @@ public class CapstanSubsystem extends SubsystemBase {
 
   private boolean wasResetByLimit = false;
   private double elevatorCurrentTarget = ElevatorSetpoints.kStore;
-  private double algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
-  private double coralWristCurrentTarget = CoralWristSetpoints.kStore;
+
   private Setpoint currentSetpoint = Setpoint.kStore;
 
   /** Creates a new CapstanSubsystem. */
@@ -67,7 +69,6 @@ public class CapstanSubsystem extends SubsystemBase {
       .apply(Capstan.elevatorConfig)
       .follow(kElevatorLeaderCanId, true);
       
-    
     // m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -80,11 +81,11 @@ public class CapstanSubsystem extends SubsystemBase {
     m_hallSensor = new DigitalInput(0);
   }
 
-  public boolean isElevatorAtBottom() {
-    return m_hallSensor.get();
+  public BooleanSupplier isElevatorAtBottom() {
+    return ()-> m_hallSensor.get();
   }
 
-  public Setpoint curentCapstanSetpoint() {
+  public Setpoint getCurentElevatorSetpoint() {
     return currentSetpoint;
   }
   
@@ -96,32 +97,36 @@ public class CapstanSubsystem extends SubsystemBase {
     return m_elevatorEncoder.getVelocity();
   }
 
+   /**
+   * @param setpoint
+   * @return if the elevator is currently at inputed setpoint
+   */
+  public Trigger atElevatorSetpoint(Setpoint setpoint) {
+    return new Trigger(() -> setpoint == getCurentElevatorSetpoint());
+  }
+
   private void moveToSetpoint() {
     m_elevatorPIDController.setReference(elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
   }
 
   /** Zero the elevator encoder when the limit switch is pressed. */
   private void zeroElevatorOnLimitSwitch() {
-    if (!wasResetByLimit && isElevatorAtBottom()) {
+    if (!wasResetByLimit && isElevatorAtBottom().getAsBoolean()) {
       // Zero the encoder only when the limit switch is switches from "unpressed" to
       // "pressed" to
       // prevent constant zeroing while pressed
       m_elevatorEncoder.setPosition(0);
       wasResetByLimit = true;
-    } else if (!isElevatorAtBottom()) {
+    } else if (!isElevatorAtBottom().getAsBoolean()) {
       wasResetByLimit = false;
     }
   }
 
-  public void zeroElevator() {
+  private void zeroElevator() {
     m_elevatorEncoder.setPosition(0);
   }
-
-  public Command runElevator(double speed) {
-      return runEnd(() -> setSpeed(speed), () -> stopMotors());
-  }
   
-  public void setSpeed(double speed) {
+  private void setSpeed(double speed) {
     // Upper limit
     // if(getElevatorPostion() <= kUpperLimit) {
       m_elevatorLeader.set(speed);
@@ -131,8 +136,12 @@ public class CapstanSubsystem extends SubsystemBase {
     // }
   }
 
-  public void stopMotors() {
+  private void stopMotors() {
     m_elevatorLeader.stopMotor();
+  }
+  
+  public Command runElevator(double speed) {
+    return runEnd(() -> setSpeed(speed), () -> stopMotors());
   }
 
   /**
