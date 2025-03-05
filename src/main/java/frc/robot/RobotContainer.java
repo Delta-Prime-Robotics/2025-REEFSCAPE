@@ -127,7 +127,7 @@ public class RobotContainer {
       //-------------------------
       m_driverGamepad.back()
       .onTrue(new InstantCommand(
-        () ->m_DriveSubsystem.zeroHeading(),
+        () -> m_DriveSubsystem.zeroHeading(),
         m_DriveSubsystem
       ));
     
@@ -156,9 +156,9 @@ public class RobotContainer {
   
       //Coral Bindings
       //---------------
-      m_operatorGamepad.axisMagnitudeGreaterThan(Axis.kRightY.value, 0.5)
-      .debounce(0.04)
-      .whileTrue(m_CoralSubsystem.manualControl(()-> m_operatorGamepad.getRightY()));
+      m_CoralSubsystem.setDefaultCommand(new RunCommand(
+      ()->m_CoralSubsystem.manualControl(() -> m_operatorGamepad.getRightY()),
+        m_CoralSubsystem));
 
       m_operatorGamepad.y()
       .whileTrue(m_WristsSubsystem.runCoralWrist(()->0.3));

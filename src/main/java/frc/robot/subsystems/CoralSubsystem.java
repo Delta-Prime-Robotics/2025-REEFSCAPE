@@ -74,8 +74,13 @@ public class CoralSubsystem extends SubsystemBase {
     .finallyDo(()-> stopMotors());
   }
 
-  public Command manualControl(DoubleSupplier yAxis){
-    return runCoralMotors(yAxis.getAsDouble());
+  public void manualControl(DoubleSupplier speed){
+    double previousSpeed = 0.0;
+    double currentSpeed = speed.getAsDouble();
+    if (currentSpeed != previousSpeed){
+      previousSpeed = currentSpeed;
+      setMotors(currentSpeed);
+    }
   }
 
   // public Command autoIntakeCoral() {
