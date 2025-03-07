@@ -13,6 +13,8 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,13 +22,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Configs.AlgaeConfig;
 import frc.robot.Configs.Capstan;
-import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
-import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
-import frc.robot.Constants.CapstanConstants.ElevatorSetpoints;
 
-import static frc.robot.Constants.CapstanConstants.*;
+import static frc.robot.Constants.ElevatorConstants.*;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class CapstanSubsystem extends SubsystemBase {
   /** Subsystem-wide setpoints */
@@ -47,14 +47,15 @@ public class CapstanSubsystem extends SubsystemBase {
 
   private final RelativeEncoder m_elevatorEncoder;
 
-  private final SparkClosedLoopController m_elevatorPIDController;
+  private final PIDController m_elevatorPIDController;
 
   private final DigitalInput m_hallSensor;
 
   private boolean wasResetByLimit = false;
-  private double elevatorCurrentTarget = ElevatorSetpoints.kStore;
-
+  private double elevatorCurrentTarget = ElevatorSetpoints.kStore; //Rotations
   private Setpoint currentSetpoint = Setpoint.kStore;
+
+  private ElevatorFeedforward m_Feedforward; 
 
   /** Creates a new CapstanSubsystem. */
   public CapstanSubsystem() {
@@ -63,7 +64,10 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_elevatorEncoder = m_elevatorLeader.getEncoder();
     
-    m_elevatorPIDController = m_elevatorLeader.getClosedLoopController();
+    m_elevatorPIDController = new PIDController(0, 0, 0); //tune please
+    m_elevatorPIDController.setTolerance(0.05);
+
+    m_Feedforward = new ElevatorFeedforward(0,0.16,3.07, 0.02); //Need to guesstamate kS
 
     m_ElevatorFollowerConfig
       .apply(Capstan.elevatorConfig)
@@ -89,6 +93,9 @@ public class CapstanSubsystem extends SubsystemBase {
     return currentSetpoint;
   }
   
+  /**
+   * @return elevtator position in rotations
+   */
   private double getElevatorPostion() {
     return -m_elevatorEncoder.getPosition();
   }
@@ -103,10 +110,6 @@ public class CapstanSubsystem extends SubsystemBase {
    */
   public Trigger atElevatorSetpoint(Setpoint setpoint) {
     return new Trigger(() -> setpoint == getCurentElevatorSetpoint());
-  }
-
-  private void moveToSetpoint() {
-    m_elevatorPIDController.setReference(elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
   }
 
   /** Zero the elevator encoder when the limit switch is pressed. */
@@ -140,14 +143,33 @@ public class CapstanSubsystem extends SubsystemBase {
     m_elevatorLeader.stopMotor();
   }
   
-  public Command runElevator(double speed) {
+  public Command runElevatorCommand(double speed) {
     return runEnd(() -> setSpeed(speed), () -> stopMotors());
+  }
+
+
+  /**
+   * Command to move the elevator to the current set setpoint
+   * Should make it stay in place.
+   */
+  public Command moveToSetpointCommand(){
+    return run(
+      () -> {
+        setSpeed(m_elevatorPIDController.calculate(
+          getElevatorPostion(),
+          elevatorCurrentTarget
+        ) + m_Feedforward.calculate(getElevatorVelocity())
+        );
+      });
+  }
+
+  public Command setAndMoveCommand(Setpoint setpoint) {
+    return setSetpointCommand(setpoint).andThen(moveToSetpointCommand());
   }
 
   /**
    * Command to set the subsystem setpoint. This will set the arm and elevator to
-   * their predefined
-   * positions for the given setpoint.
+   * their predefined positions for the given setpoint.
    */
   public Command setSetpointCommand(Setpoint setpoint) {
     return this.runOnce(
@@ -190,7 +212,6 @@ public class CapstanSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    moveToSetpoint();
     zeroElevatorOnLimitSwitch();
     SmartDashboard.putNumber("Elevator Position", getElevatorPostion());
     SmartDashboard.putNumber("Elevator Velocity", getElevatorVelocity());

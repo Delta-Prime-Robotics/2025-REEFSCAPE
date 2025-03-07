@@ -4,13 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.CapstanConstants.kAlgaeWristCanId;
-import static frc.robot.Constants.CapstanConstants.kCoralWristCanId;
-import static frc.robot.Constants.CapstanConstants.kElevatorFollowerCanId;
-import static frc.robot.Constants.CapstanConstants.kElevatorLeaderCanId;
-
 import java.util.function.DoubleSupplier;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -22,15 +18,16 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.Capstan;
-import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
-import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
-import frc.robot.Constants.CapstanConstants.ElevatorSetpoints;
+import static frc.robot.Constants.WristConstants.*;
 import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 
 public class WristsSubsystem extends SubsystemBase {
@@ -38,33 +35,35 @@ public class WristsSubsystem extends SubsystemBase {
   private final SparkMax m_algaeWristMotor;
   private final SparkMax m_coralWristMotor;
 
-  private final RelativeEncoder m_algaeWristEncoder;
+  private final AbsoluteEncoder m_algaeWristEncoder;
   private final RelativeEncoder m_coralWristEncoder;
 
-  private final SparkClosedLoopController m_algaeWristPIDController;
-  private final SparkClosedLoopController m_coralWristPIDController;
+  private final PIDController m_algaeWristPIDController;
+  private final PIDController m_coralWristPIDController;
 
+  private final ArmFeedforward m_algaeFeedforward;
+
+  private final CapstanSubsystem m_Capstan;
 
   private double algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
   private double coralWristCurrentTarget = CoralWristSetpoints.kStore;
-  private Setpoint currentSetpoint = Setpoint.kStore;
-
-  private final CapstanSubsystem m_Capstan;
-  private Setpoint m_CurrentSetpoint;
+  private Setpoint currentSetpoint;
 
   /** Creates a new WristsSubsystem. */
   public WristsSubsystem(CapstanSubsystem capstan) {
     this.m_Capstan = capstan;
-    m_CurrentSetpoint = m_Capstan.getCurentElevatorSetpoint();
+    currentSetpoint = m_Capstan.getCurentElevatorSetpoint();
     
     m_algaeWristMotor = new SparkMax(kAlgaeWristCanId, MotorType.kBrushless);
     m_coralWristMotor = new SparkMax(kCoralWristCanId, MotorType.kBrushless);
 
-    m_algaeWristEncoder = m_algaeWristMotor.getEncoder();
+    m_algaeWristEncoder = m_algaeWristMotor.getAbsoluteEncoder();
     m_coralWristEncoder = m_coralWristMotor.getEncoder();
-    
-    m_algaeWristPIDController = m_algaeWristMotor.getClosedLoopController();
-    m_coralWristPIDController = m_coralWristMotor.getClosedLoopController();
+
+    m_algaeWristPIDController = new PIDController(0, 0, 0);
+    m_coralWristPIDController = new PIDController(0, 0, 0);
+
+    m_algaeFeedforward = new ArmFeedforward(0,0.34,1.56, 0.01);
       
     // m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -74,34 +73,30 @@ public class WristsSubsystem extends SubsystemBase {
     setDefaultCommand(runOnce(()-> stopBothMotors()));
   }
 
+  /**
+   * @return a value between [0,1) which wraps
+   */
   private double getAlgaeEncoderPosition() {
     return m_algaeWristEncoder.getPosition();
   }
-
-  // private void setBothWristSetpoints(Double algaeSetpoint, Double coralSetpoint) {
-  //   m_algaeWristPIDController.setReference(
-  //     algaeSetpoint,
-  //     ControlType.kMAXMotionPositionControl,
-  //     ClosedLoopSlot.kSlot0,
-  //     new ArmFeedforward(0,0,0).calculateWithVelocities(
-  //       Units.rotationsToRadians(getAlgaeEncoderPosition()),
-  //       0,
-  //       0
-  //     ),
-  //     ArbFFUnits.kVoltage);
-  // }
 
   private double getCoralEncoderPosition() {
     return m_coralWristEncoder.getPosition();
   }
 
   private void setAlgaeWristMotor(Double speed) {
-    // if (getAlgaeEncoderPosition() >= 0.1) {
+    double pos = getAlgaeEncoderPosition();
+
+    if (pos >= kAlgaeLowerLimit && pos <= kAlgaeUpperLimit) {
+      stopAlgaeWristMotor();
+    }
+    else{
       m_algaeWristMotor.set(speed);
-    // }
-    // else{
-    //   stopAlgaeWristMotor();
-    // }
+    }
+  }
+  
+  private void stopAlgaeWristMotor() {
+    m_algaeWristMotor.stopMotor();
   }
 
   private void setCoralWristMotor(Double speed) {
@@ -113,11 +108,7 @@ public class WristsSubsystem extends SubsystemBase {
     //   stopCoralWristMotor();
     // }
   }
-  
 
-  private void stopAlgaeWristMotor() {
-    m_algaeWristMotor.stopMotor();
-  }
   private void stopCoralWristMotor() {
     m_coralWristMotor.stopMotor();
   }
@@ -132,11 +123,32 @@ public class WristsSubsystem extends SubsystemBase {
     .finallyDo(()-> stopCoralWristMotor());
   }
 
+
   public Command runAlgaeWrist(DoubleSupplier speed){
     return run(()-> setAlgaeWristMotor(speed.getAsDouble()))
     .finallyDo(()-> stopAlgaeWristMotor());
   }
+ 
+  // public Command moveBothToSetpointCommand() {
+  //   return run(()-> {
 
+  //   });
+  // }
+
+  public Command moveAlgaeWristToSetpointCommand() {
+    return run(
+      () -> {setAlgaeWristMotor(
+        m_algaeWristPIDController.calculate(
+          getAlgaeEncoderPosition(),
+          algaeWristCurrentTarget)
+        + m_algaeFeedforward.calculate(algaeWristCurrentTarget, algaeWristCurrentTarget, 0)
+
+      );});
+  }
+
+  // public Command moveCoralWristToSetpointCommand() {
+  //   return run();
+  // }
 
   /**
    * Command to set the subsystem setpoint. This will set the arm and elevator to
@@ -150,40 +162,34 @@ public class WristsSubsystem extends SubsystemBase {
             case kStore:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
               coralWristCurrentTarget = CoralWristSetpoints.kStore;
-              currentSetpoint = Setpoint.kStore;
+              break;
             case kProcessor:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kProcessor;
               coralWristCurrentTarget = CoralWristSetpoints.kProcessor;
-              currentSetpoint = Setpoint.kProcessor;
+              break;
             case kFeederStation:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kFeederStation;
               coralWristCurrentTarget = CoralWristSetpoints.kFeederStation;
-              currentSetpoint = Setpoint.kFeederStation;
               break;
             case kNet:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kProcessor;
               coralWristCurrentTarget = CoralWristSetpoints.kProcessor;
-              currentSetpoint = Setpoint.kProcessor;
               break;
             case kL1:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL1;
               coralWristCurrentTarget = CoralWristSetpoints.kL1;
-              currentSetpoint = Setpoint.kL1;
               break;
             case kL2:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL2;
               coralWristCurrentTarget = CoralWristSetpoints.kL2;
-              currentSetpoint = Setpoint.kL2;
               break;
             case kL3:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL3;
               coralWristCurrentTarget = CoralWristSetpoints.kL3;
-              currentSetpoint = Setpoint.kL3;
               break;
             case kL4:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL4;
               coralWristCurrentTarget = CoralWristSetpoints.kL4;
-              currentSetpoint = Setpoint.kL4;
               break;
           }
         });
@@ -191,7 +197,8 @@ public class WristsSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_CurrentSetpoint = m_Capstan.getCurentElevatorSetpoint();
+    currentSetpoint = m_Capstan.getCurentElevatorSetpoint();
+    SmartDashboard.putNumber("Algae Wrist Pos", getAlgaeEncoderPosition());
     // This method will be called once per scheduler run
   }
 }

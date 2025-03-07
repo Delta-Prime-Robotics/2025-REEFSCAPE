@@ -169,10 +169,10 @@ public class RobotContainer {
       //Elevator Bindings
       //------------------
       m_operatorGamepad.leftBumper()
-      .whileTrue(m_CapstanSubsystem.runElevator(0.5));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.5));
   
       m_operatorGamepad.rightBumper()
-      .whileTrue(m_CapstanSubsystem.runElevator(-0.5));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(-0.5));
 
       // m_operatorGamepad.leftTrigger(0.05)
       // .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
