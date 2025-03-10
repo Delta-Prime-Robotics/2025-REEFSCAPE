@@ -101,19 +101,27 @@ public class AlgaeSubsystem extends SubsystemBase {
     m_algaeLeader.stopMotor();
   }
 
-  public Command manualControl(double yAxis){
-    return run(()-> setMotors(yAxis));
+  public void manualControl(DoubleSupplier speed){
+    double previousSpeed = 0.0;
+    double currentSpeed = speed.getAsDouble();
+    if (currentSpeed != previousSpeed){
+      previousSpeed = currentSpeed;
+      setMotors(currentSpeed);
+    }
+    else{
+      stopMotors();
+    }
   }
 
   public Command runAlgaeMotors(double speed) {
     return runEnd(()-> setMotors(speed), ()-> stopMotors());
   }
+
   // public Command runAlgaeMotors(double speed) {
   //   return runEnd(
   //     ()-> System.out.println("Running Algae"),
   //    ()-> System.out.println("Algae Stopped"));
   // }
-
 
   public Command autoIntakeAlgae() {
     return runAlgaeMotors(AlgaeConstants.kIntakeSpeed)
@@ -157,7 +165,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     m_CurrentSetpoint = m_Capstan.getCurentElevatorSetpoint();
-    SmartDashboard.putData(this.getCurrentCommand());
+    // SmartDashboard.putData(this.getCurrentCommand());
     // This method will be called once per scheduler run
   }
 }

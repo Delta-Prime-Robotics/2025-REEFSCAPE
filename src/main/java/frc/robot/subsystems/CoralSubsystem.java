@@ -74,12 +74,19 @@ public class CoralSubsystem extends SubsystemBase {
     .finallyDo(()-> stopMotors());
   }
 
+  public Command shootToL2L3Command() {
+    return runCoralMotors(-0.7).withTimeout(0.4);
+  }
+
   public void manualControl(DoubleSupplier speed){
     double previousSpeed = 0.0;
     double currentSpeed = speed.getAsDouble();
     if (currentSpeed != previousSpeed){
       previousSpeed = currentSpeed;
       setMotors(currentSpeed);
+    }
+    else{
+      stopMotors();
     }
   }
 

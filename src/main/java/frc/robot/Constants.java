@@ -89,13 +89,14 @@ public final class Constants {
     public static final class ElevatorSetpoints {
       // Elevator Positions
       public static final double kStore = 0;
+      public static final double kGround = 5;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
-      public static final double kNet = 0;
       public static final double kL1 = 0;
       public static final double kL2 = 0;
-      public static final double kL3 = 0;
+      public static final double kL3 = 34;
       public static final double kL4 = 0;
+      public static final double kNet = 0;
     }
   }
 
@@ -103,17 +104,25 @@ public final class Constants {
     public static final int kAlgaeWristCanId = 20;
     public static final int kCoralWristCanId = 21;
     
-    public static final double kAlgaePositionOffset = 0.25;
+    public static final double kAlgaePositionOffset = 60;
     public static final double kAlgaeLowerLimit = 0.125;
     public static final double kAlgaeUpperLimit = 0.738;
+    
+    public static final double kCoralPositionOffset = 28;
+    private static final double kCoralWristLength = 0.381; //meters or 15 inches
+    private static final double kCoralWristWeight = 5.9; //Pounds
+    public static final double kCoralMaxVelocity = 
+    (MotorConstants.kNeoFreeSpeedRpm / 125) * kCoralWristLength * ((2*Math.PI) / 60); //metersPerSec
+    public static final double kCoralMaxAcceleration = 2.6 / (kCoralWristWeight * kCoralWristLength); //metersPerSec^2
 
     public static final class AlgaeWristSetpoints {
       // Algae Wrist Positions
-      public static final double kStore = 0;
+      public static final double kStore = 65;
       public static final double kFeederStation = 0;
+      public static final double kGround = -5;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
-      public static final double kL1 = 0;
+      public static final double kL1 = 0.00;
       public static final double kL2 = 0;
       public static final double kL3 = 0;
       public static final double kL4 = 0;
@@ -121,13 +130,13 @@ public final class Constants {
 
     public static final class CoralWristSetpoints {
       //Coral Wrist Positions
-      public static final double kStore = 0;
+      public static final double kStore = 25;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 0;
-      public static final double kL3 = 0;
+      public static final double kL2 = 4;
+      public static final double kL3 = 7;
       public static final double kL4 = 0;
     }
   }

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -21,12 +22,20 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.Capstan;
+import frc.robot.Constants.WristConstants.AlgaeWristSetpoints;
+import frc.robot.Constants.WristConstants.CoralWristSetpoints;
+
 import static frc.robot.Constants.WristConstants.*;
 import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 
@@ -35,13 +44,21 @@ public class WristsSubsystem extends SubsystemBase {
   private final SparkMax m_algaeWristMotor;
   private final SparkMax m_coralWristMotor;
 
-  private final AbsoluteEncoder m_algaeWristEncoder;
+  // private final AbsoluteEncoder m_algaeWristEncoder;
+  private final RelativeEncoder m_algaeWristEncoder;
   private final RelativeEncoder m_coralWristEncoder;
 
   private final PIDController m_algaeWristPIDController;
   private final PIDController m_coralWristPIDController;
 
-  private final ArmFeedforward m_algaeFeedforward;
+  private final SimpleMotorFeedforward m_algaeFeedforward;
+  private final ArmFeedforward m_coralFeedforward;
+
+  private final TrapezoidProfile.Constraints m_algaeConstraints =
+  new TrapezoidProfile.Constraints(0, 0);
+  
+  private final TrapezoidProfile.Constraints m_coralConstraints =
+  new TrapezoidProfile.Constraints(kCoralMaxVelocity, kCoralMaxAcceleration);
 
   private final CapstanSubsystem m_Capstan;
 
@@ -57,42 +74,50 @@ public class WristsSubsystem extends SubsystemBase {
     m_algaeWristMotor = new SparkMax(kAlgaeWristCanId, MotorType.kBrushless);
     m_coralWristMotor = new SparkMax(kCoralWristCanId, MotorType.kBrushless);
 
-    m_algaeWristEncoder = m_algaeWristMotor.getAbsoluteEncoder();
+    m_algaeWristEncoder = m_algaeWristMotor.getEncoder();
     m_coralWristEncoder = m_coralWristMotor.getEncoder();
 
-    m_algaeWristPIDController = new PIDController(0, 0, 0);
-    m_coralWristPIDController = new PIDController(0, 0, 0);
+    m_algaeWristPIDController = new PIDController(0.13,0.00, 0.0);
+    m_algaeWristPIDController.setIZone(0.1);
 
-    m_algaeFeedforward = new ArmFeedforward(0,0.34,1.56, 0.01);
-      
+    m_coralWristPIDController = new PIDController(0.23, 0.05, 0.001);
+    m_coralWristPIDController.setIZone(0.1);
+
+    m_algaeWristPIDController.setTolerance(0.7);
+    m_coralWristPIDController.setTolerance(1);
+
+    m_algaeFeedforward = new SimpleMotorFeedforward(0,0.34,1.56);
+    m_coralFeedforward = new ArmFeedforward(0 , 0.13, 2.44);
     // m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_algaeWristMotor.configure(Capstan.algaeWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_coralWristMotor.configure(Capstan.coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    setDefaultCommand(runOnce(()-> stopBothMotors()));
+    // m_algaeWristEncoder.setPosition(0);
+    // m_coralWristEncoder.setPosition(0);
+    // setDefaultCommand(runOnce(()-> stopBothMotors()));
   }
 
   /**
    * @return a value between [0,1) which wraps
    */
   private double getAlgaeEncoderPosition() {
-    return m_algaeWristEncoder.getPosition();
+    return m_algaeWristEncoder.getPosition()+kAlgaePositionOffset;
   }
 
   private double getCoralEncoderPosition() {
-    return m_coralWristEncoder.getPosition();
+    return m_coralWristEncoder.getPosition()+kCoralPositionOffset;
   }
 
   private void setAlgaeWristMotor(Double speed) {
-    double pos = getAlgaeEncoderPosition();
+    // double pos = getAlgaeEncoderPosition();
 
-    if (pos >= kAlgaeLowerLimit && pos <= kAlgaeUpperLimit) {
-      stopAlgaeWristMotor();
-    }
-    else{
+    // if (pos >= kAlgaeLowerLimit && pos <= kAlgaeUpperLimit) {
+    //   stopAlgaeWristMotor();
+    // }
+    // else{
       m_algaeWristMotor.set(speed);
-    }
+    // }
   }
   
   private void stopAlgaeWristMotor() {
@@ -135,15 +160,26 @@ public class WristsSubsystem extends SubsystemBase {
   //   });
   // }
 
-  public Command moveAlgaeWristToSetpointCommand() {
-    return run(
-      () -> {setAlgaeWristMotor(
-        m_algaeWristPIDController.calculate(
-          getAlgaeEncoderPosition(),
-          algaeWristCurrentTarget)
-        + m_algaeFeedforward.calculate(algaeWristCurrentTarget, algaeWristCurrentTarget, 0)
+  public Command moveAlgaeWristToSetpointCommand(Setpoint setSetpoint) {
+    return startRun(() -> setSetpointCommand(setSetpoint),
+      () -> {
+        setAlgaeWristMotor(
+        m_algaeWristPIDController.calculate(getAlgaeEncoderPosition()));
+        //  + m_algaeFeedforward.calculate(m_algaeWristEncoder.getVelocity()));
+        })
+        .until(() -> m_algaeWristPIDController.atSetpoint())
+        .finallyDo(() -> stopAlgaeWristMotor());
+  }
 
-      );});
+  public Command moveCoralWristToSetpointCommand(Setpoint setSetpoint) {
+    return startRun(()-> setSetpointCommand(setSetpoint),
+      () -> {
+        // var setpoint = m_coralWristPIDController.getSetpoint();
+        setCoralWristMotor(m_coralWristPIDController.calculate(getCoralEncoderPosition()));
+        //+ m_coralFeedforward.calculate(setpoint.position, setpoint.velocity))); //rad, rad/s
+      })
+      .until(() -> m_coralWristPIDController.atSetpoint())
+      .finallyDo(() -> stopCoralWristMotor());
   }
 
   // public Command moveCoralWristToSetpointCommand() {
@@ -155,9 +191,7 @@ public class WristsSubsystem extends SubsystemBase {
    * their predefined
    * positions for the given setpoint.
    */
-  public Command setSetpointCommand(Setpoint setpoint) {
-    return this.runOnce(
-        () -> {
+  public void setSetpointCommand(Setpoint setpoint) {
           switch (setpoint) {
             case kStore:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
@@ -166,6 +200,10 @@ public class WristsSubsystem extends SubsystemBase {
             case kProcessor:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kProcessor;
               coralWristCurrentTarget = CoralWristSetpoints.kProcessor;
+              break;
+            case kGround:
+              algaeWristCurrentTarget = AlgaeWristSetpoints.kGround;
+              coralWristCurrentTarget = CoralWristSetpoints.kStore;
               break;
             case kFeederStation:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kFeederStation;
@@ -192,13 +230,18 @@ public class WristsSubsystem extends SubsystemBase {
               coralWristCurrentTarget = CoralWristSetpoints.kL4;
               break;
           }
-        });
+
+    m_coralWristPIDController.setSetpoint(coralWristCurrentTarget);
+    m_algaeWristPIDController.setSetpoint(algaeWristCurrentTarget);
   }
+  
 
   @Override
   public void periodic() {
-    currentSetpoint = m_Capstan.getCurentElevatorSetpoint();
     SmartDashboard.putNumber("Algae Wrist Pos", getAlgaeEncoderPosition());
+    SmartDashboard.putNumber("Algae Goal", algaeWristCurrentTarget);
+    SmartDashboard.putNumber("Coral Wrist Pos", getCoralEncoderPosition());
+    SmartDashboard.putNumber("Coral Goal", coralWristCurrentTarget);
     // This method will be called once per scheduler run
   }
 }

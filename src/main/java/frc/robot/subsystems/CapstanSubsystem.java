@@ -32,6 +32,7 @@ public class CapstanSubsystem extends SubsystemBase {
   /** Subsystem-wide setpoints */
   public enum Setpoint {
     kStore,
+    kGround,
     kFeederStation,
     kProcessor,
     kNet,
@@ -64,8 +65,9 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_elevatorEncoder = m_elevatorLeader.getEncoder();
     
-    m_elevatorPIDController = new PIDController(0, 0, 0); //tune please
-    m_elevatorPIDController.setTolerance(0.05);
+    m_elevatorPIDController = new PIDController(0.05, 0.1, 0); //tune please
+    m_elevatorPIDController.setTolerance(1.5);
+    m_elevatorPIDController.setIZone(0.1);
 
     m_Feedforward = new ElevatorFeedforward(0,0.16,3.07, 0.02); //Need to guesstamate kS
 
@@ -82,11 +84,11 @@ public class CapstanSubsystem extends SubsystemBase {
     m_elevatorEncoder.setPosition(0);
     // m_wristEncoder.setPosition(0);
 
-    m_hallSensor = new DigitalInput(0);
+    m_hallSensor = new DigitalInput(9);
   }
 
   public BooleanSupplier isElevatorAtBottom() {
-    return ()-> m_hallSensor.get();
+    return ()-> !m_hallSensor.get();
   }
 
   public Setpoint getCurentElevatorSetpoint() {
@@ -131,12 +133,8 @@ public class CapstanSubsystem extends SubsystemBase {
   
   private void setSpeed(double speed) {
     // Upper limit
-    // if(getElevatorPostion() <= kUpperLimit) {
-      m_elevatorLeader.set(speed);
-    // }
-    // else {
-    //   stopMotors();
-    // }
+    if (speed <= -0.2) {speed = -0.2;}
+    m_elevatorLeader.set(-speed);
   }
 
   private void stopMotors() {
@@ -152,28 +150,20 @@ public class CapstanSubsystem extends SubsystemBase {
    * Command to move the elevator to the current set setpoint
    * Should make it stay in place.
    */
-  public Command moveToSetpointCommand(){
-    return run(
+  public Command moveToSetpointCommand(Setpoint setSetpoint){
+    return startRun(() -> setSetpoint(setSetpoint),
       () -> {
-        setSpeed(m_elevatorPIDController.calculate(
-          getElevatorPostion(),
-          elevatorCurrentTarget
-        ) + m_Feedforward.calculate(getElevatorVelocity())
-        );
-      });
-  }
-
-  public Command setAndMoveCommand(Setpoint setpoint) {
-    return setSetpointCommand(setpoint).andThen(moveToSetpointCommand());
+        setSpeed(m_elevatorPIDController.calculate(getElevatorPostion()));
+      })
+      .until(()-> m_elevatorPIDController.atSetpoint())
+      .finallyDo(()-> stopMotors());
   }
 
   /**
    * Command to set the subsystem setpoint. This will set the arm and elevator to
    * their predefined positions for the given setpoint.
    */
-  public Command setSetpointCommand(Setpoint setpoint) {
-    return this.runOnce(
-        () -> {
+  public void setSetpoint(Setpoint setpoint) {
           switch (setpoint) {
             case kStore:
               elevatorCurrentTarget = ElevatorSetpoints.kStore;
@@ -205,14 +195,22 @@ public class CapstanSubsystem extends SubsystemBase {
               elevatorCurrentTarget = ElevatorSetpoints.kL4;
               currentSetpoint = Setpoint.kL4;
               break;
+            case kGround:
+              elevatorCurrentTarget = ElevatorSetpoints.kGround;
+              currentSetpoint = Setpoint.kGround;
+              break;
+            default:
+              break;
           }
-        }).withName(setpoint.toString());
-  }
+    m_elevatorPIDController.setSetpoint(elevatorCurrentTarget);
+ }
+  
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     zeroElevatorOnLimitSwitch();
+    SmartDashboard.putBoolean("Elevator at bottom", isElevatorAtBottom().getAsBoolean());
     SmartDashboard.putNumber("Elevator Position", getElevatorPostion());
     SmartDashboard.putNumber("Elevator Velocity", getElevatorVelocity());
   }

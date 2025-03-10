@@ -12,6 +12,7 @@ import frc.robot.subsystems.CapstanSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.WristsSubsystem;
+import frc.robot.subsystems.CapstanSubsystem.Setpoint;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -140,12 +141,17 @@ public class RobotContainer {
       //Algae Bindings
       //---------------
       //Test to see if this is working (it does seem to be working)
+      m_AlgaeSubsystem.setDefaultCommand(new RunCommand(
+      ()->m_AlgaeSubsystem.manualControl(() -> m_operatorGamepad.getLeftY()),
+        m_AlgaeSubsystem));
 
-      m_operatorGamepad.leftTrigger(0.1)
-      .whileTrue(m_AlgaeSubsystem.autoIntakeAlgae());
+      // m_operatorGamepad.leftTrigger(0.1)
+      // .whileTrue(m_AlgaeSubsystem.autoIntakeAlgae());
+      // m_operatorGamepad.leftTrigger(0.1)
+      // .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kGround));
 
-      // m_operatorGamepad.leftBumper()
-      // .whileTrue(m_AlgaeSubsystem.outToNet());
+      // m_operatorGamepad.rightTrigger(0.1)
+      // .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kStore));
 
       m_operatorGamepad.x()
       .whileTrue(m_WristsSubsystem.runAlgaeWrist(()-> 0.5));
@@ -160,6 +166,20 @@ public class RobotContainer {
       ()->m_CoralSubsystem.manualControl(() -> m_operatorGamepad.getRightY()),
         m_CoralSubsystem));
 
+      // m_operatorGamepad.povUp()
+      // .onTrue(() -> m_WristsSubsystem.setSetpointCommand(Setpoint.kStore));
+
+      // m_operatorGamepad.povDown()
+      // .onTrue(m_WristsSubsystem.setSetpointCommand(Setpoint.kL2));
+ 
+      // m_operatorGamepad.leftTrigger(0.1)
+      // .whileTrue(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kStore));
+     
+      // m_operatorGamepad.rightTrigger(0.1)
+      // .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kGround)
+      // .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL2))
+      // .andThen(m_CoralSubsystem.shootToL2L3Command()));
+
       m_operatorGamepad.y()
       .whileTrue(m_WristsSubsystem.runCoralWrist(()->0.3));
   
@@ -169,10 +189,19 @@ public class RobotContainer {
       //Elevator Bindings
       //------------------
       m_operatorGamepad.leftBumper()
-      .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.5));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(-0.3));
   
       m_operatorGamepad.rightBumper()
-      .whileTrue(m_CapstanSubsystem.runElevatorCommand(-0.5));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.35));
+
+      m_operatorGamepad.leftTrigger(0.1)
+      .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kGround));
+
+      m_operatorGamepad.rightTrigger(0.1)
+      .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kL3)
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL3))
+      .andThen(m_CoralSubsystem.shootToL2L3Command()));
+
 
       // m_operatorGamepad.leftTrigger(0.05)
       // .whileTrue(new RunCommand(()-> m_CapstanSubsystem.setSpeed(
