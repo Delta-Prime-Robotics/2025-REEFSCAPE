@@ -93,7 +93,7 @@ public final class Constants {
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 0;
+      public static final double kL2 = 13;
       public static final double kL3 = 34;
       public static final double kL4 = 0;
       public static final double kNet = 0;
@@ -119,7 +119,7 @@ public final class Constants {
       // Algae Wrist Positions
       public static final double kStore = 65;
       public static final double kFeederStation = 0;
-      public static final double kGround = -5;
+      public static final double kGround = -9;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0.00;
@@ -135,8 +135,8 @@ public final class Constants {
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 4;
-      public static final double kL3 = 7;
+      public static final double kL2 = 6;
+      public static final double kL3 = 2;
       public static final double kL4 = 0;
     }
   }

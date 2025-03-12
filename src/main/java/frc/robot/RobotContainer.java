@@ -195,12 +195,14 @@ public class RobotContainer {
       .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.35));
 
       m_operatorGamepad.leftTrigger(0.1)
-      .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kGround));
+      .whileTrue(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL2));
 
       m_operatorGamepad.rightTrigger(0.1)
       .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kL3)
-      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL3))
-      .andThen(m_CoralSubsystem.shootToL2L3Command()));
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL3)));
+
+      m_operatorGamepad.povDown()
+      .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kGround));
 
 
       // m_operatorGamepad.leftTrigger(0.05)
