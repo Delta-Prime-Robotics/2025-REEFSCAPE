@@ -189,10 +189,10 @@ public class RobotContainer {
       //Elevator Bindings
       //------------------
       m_operatorGamepad.leftBumper()
-      .whileTrue(m_CapstanSubsystem.runElevatorCommand(-0.3));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(-0.95));
   
       m_operatorGamepad.rightBumper()
-      .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.35));
+      .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.99));
 
       m_operatorGamepad.leftTrigger(0.1)
       .whileTrue(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL2));

@@ -65,7 +65,7 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_elevatorEncoder = m_elevatorLeader.getEncoder();
     
-    m_elevatorPIDController = new PIDController(0.05, 0.1, 0); //tune please
+    m_elevatorPIDController = new PIDController(0.14, 0.1, 0); //tune please
     m_elevatorPIDController.setTolerance(1.5);
     m_elevatorPIDController.setIZone(0.1);
 
@@ -132,6 +132,12 @@ public class CapstanSubsystem extends SubsystemBase {
   }
   
   private void setSpeed(double speed) {
+    // Upper limit
+  //  if (speed <= -0.2) {speed = -0.2;}
+    m_elevatorLeader.set(-speed);
+  }
+
+  private void setSpeedWithLimit(double speed){
     // Upper limit
     if (speed <= -0.2) {speed = -0.2;}
     m_elevatorLeader.set(-speed);
@@ -212,6 +218,6 @@ public class CapstanSubsystem extends SubsystemBase {
     zeroElevatorOnLimitSwitch();
     SmartDashboard.putBoolean("Elevator at bottom", isElevatorAtBottom().getAsBoolean());
     SmartDashboard.putNumber("Elevator Position", getElevatorPostion());
-    SmartDashboard.putNumber("Elevator Velocity", getElevatorVelocity());
+    SmartDashboard.putNumber("Elevator Goal", m_elevatorPIDController.getSetpoint());
   }
 }
