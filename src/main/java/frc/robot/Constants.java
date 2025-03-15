@@ -93,8 +93,10 @@ public final class Constants {
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 0;
-      public static final double kL3 = 112;
+      public static final double kCoralL2 = 0;
+      public static final double kAlgaeL2 = 150;
+      public static final double kCoralL3 = 114;
+      public static final double kAlgaeL3 = 0;
       public static final double kL4 = 0;
       public static final double kNet = 0;
     }
@@ -104,7 +106,7 @@ public final class Constants {
     public static final int kAlgaeWristCanId = 20;
     public static final int kCoralWristCanId = 21;
     
-    public static final double kAlgaePositionOffset = 60;
+    public static final double kAlgaePositionOffset = 51;
     public static final double kAlgaeLowerLimit = 0.125;
     public static final double kAlgaeUpperLimit = 0.738;
     
@@ -123,7 +125,7 @@ public final class Constants {
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0.00;
-      public static final double kL2 = 0;
+      public static final double kL2 = 2;
       public static final double kL3 = 0;
       public static final double kL4 = 0;
     }

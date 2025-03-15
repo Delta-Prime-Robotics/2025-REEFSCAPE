@@ -217,13 +217,17 @@ public class WristsSubsystem extends SubsystemBase {
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL1;
               coralWristCurrentTarget = CoralWristSetpoints.kL1;
               break;
-            case kL2:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL2;
+            case kCoralL2:
               coralWristCurrentTarget = CoralWristSetpoints.kL2;
               break;
-            case kL3:
-              algaeWristCurrentTarget = AlgaeWristSetpoints.kL3;
+            case kAlgaeL2:
+              algaeWristCurrentTarget = AlgaeWristSetpoints.kL2;
+              break;
+            case kCoralL3:
               coralWristCurrentTarget = CoralWristSetpoints.kL3;
+              break;
+            case kAlgaeL3:
+              algaeWristCurrentTarget = AlgaeWristSetpoints.kL3;
               break;
             case kL4:
               algaeWristCurrentTarget = AlgaeWristSetpoints.kL4;

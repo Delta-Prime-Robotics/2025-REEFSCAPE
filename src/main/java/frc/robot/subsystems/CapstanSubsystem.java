@@ -37,8 +37,10 @@ public class CapstanSubsystem extends SubsystemBase {
     kProcessor,
     kNet,
     kL1,
-    kL2,
-    kL3,
+    kCoralL2,
+    kAlgaeL2,
+    kCoralL3,
+    kAlgaeL3,
     kL4;
   }
 
@@ -189,13 +191,21 @@ public class CapstanSubsystem extends SubsystemBase {
               elevatorCurrentTarget = ElevatorSetpoints.kL1;
               currentSetpoint = Setpoint.kL1;
               break;
-            case kL2:
-              elevatorCurrentTarget = ElevatorSetpoints.kL2;
-              currentSetpoint = Setpoint.kL2;
+            case kCoralL2:
+              elevatorCurrentTarget = ElevatorSetpoints.kCoralL2;
+              currentSetpoint = Setpoint.kCoralL2;
               break;
-            case kL3:
-              elevatorCurrentTarget = ElevatorSetpoints.kL3;
-              currentSetpoint = Setpoint.kL3;
+            case kAlgaeL2:
+              elevatorCurrentTarget = ElevatorSetpoints.kAlgaeL2;
+              currentSetpoint = Setpoint.kAlgaeL2;
+              break;
+            case kCoralL3:
+              elevatorCurrentTarget = ElevatorSetpoints.kCoralL3;
+              currentSetpoint = Setpoint.kCoralL3;
+              break;
+            case kAlgaeL3:
+              elevatorCurrentTarget = ElevatorSetpoints.kAlgaeL3;
+              currentSetpoint = Setpoint.kAlgaeL3;
               break;
             case kL4:
               elevatorCurrentTarget = ElevatorSetpoints.kL4;

@@ -96,22 +96,22 @@ public class CoralSubsystem extends SubsystemBase {
   //       .finallyDo(() -> stopCoralMotor());
   // }
 
-  public Command autoCoralSpeeds(){
-      switch (m_CurrentSetpoint) {
-        case kFeederStation:
-          return runCoralMotors(1);
-        case kL1:
-          return runCoralMotors(-0.25);
-        case kL2:
-          return runCoralMotors(-0.5);
-        case kL3:
-          return runCoralMotors(-0.75);
-        case kL4:
-          return runCoralMotors(-1.0);
-        default:
-          return runOnce(() -> stopMotors());
-      }
-  }
+  // public Command autoCoralSpeeds(){
+  //     switch (m_CurrentSetpoint) {
+  //       case kFeederStation:
+  //         return runCoralMotors(1);
+  //       case kL1:
+  //         return runCoralMotors(-0.25);
+  //       case kL2:
+  //         return runCoralMotors(-0.5);
+  //       case kL3:
+  //         return runCoralMotors(-0.75);
+  //       case kL4:
+  //         return runCoralMotors(-1.0);
+  //       default:
+  //         return runOnce(() -> stopMotors());
+  //     }
+  // }
 
   @Override
   public void periodic() {
