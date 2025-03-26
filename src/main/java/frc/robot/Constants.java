@@ -88,7 +88,7 @@ public final class Constants {
 
     public static final class ElevatorSetpoints {
       // Elevator Positions
-      public static final double kStore = 0;
+      public static final double kStore = 2;
       public static final double kGround = 0;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
@@ -97,7 +97,7 @@ public final class Constants {
       public static final double kAlgaeL2 = 150;
       public static final double kCoralL3 = 114;
       public static final double kAlgaeL3 = 0;
-      public static final double kL4 = 0;
+      public static final double kL4 = 255; //241
       public static final double kNet = 0;
     }
   }
@@ -119,7 +119,7 @@ public final class Constants {
 
     public static final class AlgaeWristSetpoints {
       // Algae Wrist Positions
-      public static final double kStore = 65;
+      public static final double kStore = 51;
       public static final double kFeederStation = 0;
       public static final double kGround = -8;
       public static final double kProcessor = 0;
@@ -132,14 +132,15 @@ public final class Constants {
 
     public static final class CoralWristSetpoints {
       //Coral Wrist Positions
-      public static final double kStore = 25;
+      //True values
+      public static final double kStore = 24;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0;
       public static final double kL2 = 6;
       public static final double kL3 = -2;
-      public static final double kL4 = 0;
+      public static final double kL4 = -1; 
     }
   }
   

@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,6 +60,7 @@ public class CapstanSubsystem extends SubsystemBase {
   private Setpoint currentSetpoint = Setpoint.kStore;
 
   private ElevatorFeedforward m_Feedforward; 
+  private SlewRateLimiter rateLimiter = new SlewRateLimiter(0.4);
 
   /** Creates a new CapstanSubsystem. */
   public CapstanSubsystem() {
@@ -134,15 +136,18 @@ public class CapstanSubsystem extends SubsystemBase {
   }
   
   private void setSpeed(double speed) {
-    // Upper limit
-  //  if (speed <= -0.2) {speed = -0.2;}
-    m_elevatorLeader.set(-speed);
+    // Lower limit
+    if (getElevatorPostion() <= 10 && speed < 0) {
+      stopMotors();
+    }
+    else {m_elevatorLeader.set(-speed);}
+    // m_elevatorLeader.set(-rateLimiter.calculate(speed));
   }
 
   private void setSpeedWithLimit(double speed){
     // Upper limit
     if (speed <= -0.2) {speed = -0.2;}
-    m_elevatorLeader.set(-speed);
+    setSpeed(speed);
   }
 
   private void stopMotors() {

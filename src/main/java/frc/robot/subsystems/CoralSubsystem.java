@@ -78,6 +78,10 @@ public class CoralSubsystem extends SubsystemBase {
     return runCoralMotors(-0.7).withTimeout(0.4);
   }
 
+  public Command shootToL4Command() {
+    return runCoralMotors(-0.2).withTimeout(1);
+  }
+
   public void manualControl(DoubleSupplier speed){
     double previousSpeed = 0.0;
     double currentSpeed = speed.getAsDouble();

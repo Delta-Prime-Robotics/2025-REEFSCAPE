@@ -84,7 +84,7 @@ public class WristsSubsystem extends SubsystemBase {
     m_coralWristPIDController.setIZone(0.1);
 
     m_algaeWristPIDController.setTolerance(0.7);
-    m_coralWristPIDController.setTolerance(1);
+    m_coralWristPIDController.setTolerance(0.7);
 
     m_algaeFeedforward = new SimpleMotorFeedforward(0,0.34,1.56);
     m_coralFeedforward = new ArmFeedforward(0 , 0.13, 2.44);

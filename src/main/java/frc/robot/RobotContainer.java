@@ -173,9 +173,6 @@ public class RobotContainer {
       m_operatorGamepad.b()
       .whileTrue(m_WristsSubsystem.runCoralWrist(()->-0.3));
 
-      // m_operatorGamepad.povUp()
-      // .onTrue(() -> m_WristsSubsystem.setSetpointCommand(Setpoint.kStore));
-
       // m_operatorGamepad.povDown()
       // .onTrue(m_WristsSubsystem.setSetpointCommand(Setpoint.kL2));
  
@@ -195,13 +192,24 @@ public class RobotContainer {
       m_operatorGamepad.rightBumper()
       .whileTrue(m_CapstanSubsystem.runElevatorCommand(0.99));
 
-      m_operatorGamepad.leftTrigger(0.1)
+      // m_operatorGamepad.leftTrigger(0.1)
+      // .whileTrue(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL2));
+
+      m_operatorGamepad.povUp()
       .whileTrue(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL2));
+
+      m_operatorGamepad.leftTrigger(0.1)
+      .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kL4)
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL4)));
 
       m_operatorGamepad.rightTrigger(0.1)
       .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kCoralL3)
       .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL3)));
       
+      // m_operatorGamepad.start()
+      // .whileTrue(m_CoralSubsystem.shootToL4Command()
+      // .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kStore)));
+
       // m_operatorGamepad.rightTrigger(0.1)
       // .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kCoralL3));
 
@@ -209,8 +217,8 @@ public class RobotContainer {
       // .whileTrue(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kAlgaeL2)
       // .andThen(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kAlgaeL2)));
 
-      m_operatorGamepad.povDown()
-      .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kGround));
+      // m_operatorGamepad.povDown()
+      // .whileTrue(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kGround));
 
 
       // m_operatorGamepad.leftTrigger(0.05)
@@ -232,16 +240,34 @@ public class RobotContainer {
   }
   
   private void configurePathPlaner(){
-      NamedCommands.registerCommand("ShootL3", 
+      NamedCommands.registerCommand("CoralL4", 
+      m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kL4)
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kL4)));
+
+      NamedCommands.registerCommand("CoralL3", 
       m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kCoralL3)
-      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL3))
-      .andThen(m_CoralSubsystem.shootToL2L3Command()));
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL3)));
       
-      NamedCommands.registerCommand("ShootL2",
-      m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL2)
-      .andThen(m_CoralSubsystem.shootToL2L3Command()));
+      NamedCommands.registerCommand("CoralL2",
+      m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kCoralL2));
 
+      NamedCommands.registerCommand("Store", 
+      m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kStore)
+      .andThen(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kStore))
+      .andThen(m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kStore)));
 
+      NamedCommands.registerCommand("AlgaeL2", 
+      m_CapstanSubsystem.moveToSetpointCommand(Setpoint.kAlgaeL2)
+      .andThen(m_WristsSubsystem.moveAlgaeWristToSetpointCommand(Setpoint.kAlgaeL2)));
+
+      NamedCommands.registerCommand("AutoIntakeAlgae", 
+      m_AlgaeSubsystem.autoIntakeAlgae().withTimeout(4));
+
+      NamedCommands.registerCommand("Outtake Coral", m_CoralSubsystem.shootToL2L3Command());
+      
+      NamedCommands.registerCommand("Outtake Coral L4", 
+      m_CoralSubsystem.shootToL4Command()
+      .andThen(m_WristsSubsystem.moveCoralWristToSetpointCommand(Setpoint.kStore)));
   }
 
   /**
