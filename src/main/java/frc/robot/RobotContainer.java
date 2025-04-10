@@ -4,18 +4,26 @@
 
 package frc.robot;
 
-import frc.robot.Constants.UsbPort;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IO.UsbPort;
 import frc.robot.commands.Autos;
 import frc.robot.commands.MoveByDistanceCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -33,13 +41,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
-
+  private final LEDSubsystem m_LED = new LEDSubsystem();
+  
   // Utilitys
- //private final Autos m_Autos = new Autos();
+  //private final Au tos m_Autos = new Autos();
   
   // The driver's controller
   private final CommandXboxController m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
-  
+  private final CommandXboxController m_OperatorGamepad = new CommandXboxController(UsbPort.kOperatorControler);
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -47,6 +56,8 @@ public class RobotContainer {
     //For USB/Ethernet Teathering at Compation
     PortForwarder.add(5800, "photonvision.local", 5800);
     // ! Must be called after subsyste ms are created 
+    m_LED.register();
+    // ! Must be called after subsystems are created 
     // ! and before building auto chooser
     configurePathPlaner();
     
@@ -70,17 +81,8 @@ public class RobotContainer {
               -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband),
               true),
           m_DriveSubsystem));
-    
-    m_driverGamepad.rightBumper()
-    .whileTrue(
-      new RunCommand(
-      () -> m_DriveSubsystem.drive(
-          -MathUtil.applyDeadband(m_driverGamepad.getLeftY(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
-          -MathUtil.applyDeadband(m_driverGamepad.getLeftX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
-          -MathUtil.applyDeadband(m_driverGamepad.getRightX(), UsbPort.kDriveDeadband)* UsbPort.kBabyModeWeight,
-          true),
-      m_DriveSubsystem));
   }
+  
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -104,11 +106,12 @@ public class RobotContainer {
       () ->m_DriveSubsystem.setX(),
       m_DriveSubsystem
     ));
+    
+    m_operatorGamepad.a()
+    .onTrue(m_LED.runPatternFor(LEDPattern.solid(Color.kOrange), 2));
 
-    // m_driverGamepad.a()
-    // .onTrue(new MoveByDistanceCommand(m_DriveSubsystem, 1, 2, 0)
-    // .withTimeout(10));
-
+    m_operatorGamepad.b()
+    .whileTrue(m_LED.discoMode());
   }
 
   private void configurePathPlaner(){

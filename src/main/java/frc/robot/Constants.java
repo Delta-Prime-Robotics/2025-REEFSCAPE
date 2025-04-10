@@ -89,17 +89,21 @@ public final class Constants {
     public static final int kVortexSetCurrent = 50;//amps
   }
   
-  /*Usb port Constants for Laptop */
-  public final class UsbPort {
-    public static final double kDriveDeadband = 0.05;
-    public static final double kBabyModeWeight = 0.85;
+  public final class IO {
+    public static final int kLedPort = 9; //PWM
 
-    public static final int kTestingControler = 1;
-    public static final int kOperatorControler = 2; // Change this to 
-    public static final int kDriveControler = 3;// Change this to kDriveControler
-    // public static final int kFlightJoystick = 4;
+    /*Usb port Constants for Laptop */
+    public final class UsbPort {
+      public static final double kDriveDeadband = 0.05;
+      public static final int kTestingControler = 1;
+      public static final int kOperatorControler = 2; // Change this to 
+      public static final int kDriveControler = 3;// Change this to kDriveControler
+      
+      // public static final int kFlightJoystick = 4;
+    }
   }
-  /** Constants for the gamepad joysticks & buttons */ 
+
+ /** Constants for the gamepad joysticks & buttons */ 
   public static final class GamePad {
     // Joysticks and their axes
     public final class LeftStick {
