@@ -48,7 +48,7 @@ public class RobotContainer {
   
   // The driver's controller
   private final CommandXboxController m_driverGamepad = new CommandXboxController(UsbPort.kDriveControler);
-  private final CommandXboxController m_OperatorGamepad = new CommandXboxController(UsbPort.kOperatorControler);
+  private final CommandXboxController m_operatorGamepad = new CommandXboxController(UsbPort.kOperatorControler);
   private final SendableChooser<Command> m_pathChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -82,7 +82,7 @@ public class RobotContainer {
               true),
           m_DriveSubsystem));
   }
-  
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary

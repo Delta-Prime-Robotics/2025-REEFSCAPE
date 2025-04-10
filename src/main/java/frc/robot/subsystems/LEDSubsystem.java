@@ -7,6 +7,9 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.IO;
 import frc.robot.Constants.IO.*;
 
+import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
@@ -14,6 +17,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -33,8 +38,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
   
 public class LEDSubsystem extends SubsystemBase {
-  private static final int kLength = 128;
-  private static final int kBrightness = 50;
+  private static final int kLength = 96;
+  private static final int kBrightness = 20;
   private final AddressableLED m_led;
   private final AddressableLEDBuffer m_buffer; 
   
@@ -71,7 +76,9 @@ public class LEDSubsystem extends SubsystemBase {
 
     if (RobotState.isDisabled()){
       base = LEDPattern.solid(Color.kRed).atBrightness(Percent.of(kBrightness));
-      setPattern(LEDPattern.solid(Color.kRed));
+      setPattern(LEDPattern.rainbow(255, 128)
+      .breathe(Time.ofBaseUnits(1, Second))
+      .scrollAtAbsoluteSpeed(LinearVelocity.ofBaseUnits(0.2, MetersPerSecond), Distance.ofBaseUnits(3, Centimeters)));
     }
   }
 
@@ -96,7 +103,9 @@ public class LEDSubsystem extends SubsystemBase {
   }
   
   public Command discoMode(){
-    return runPattern(LEDPattern.rainbow(255, 128));
+    return runPattern(LEDPattern.rainbow(255, 128)
+    .breathe(Time.ofBaseUnits(1, Second))
+    .scrollAtAbsoluteSpeed(LinearVelocity.ofBaseUnits(0.2, MetersPerSecond), Distance.ofBaseUnits(3, Centimeters)));
   }
   
     
