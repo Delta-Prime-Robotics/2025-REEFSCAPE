@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.904918032786883,
-        "y": 2.047028688524591
+        "x": 6.867630716963441,
+        "y": 2.0303261765082996
       },
       "isLocked": false,
       "linkedName": "RS Start"
     },
     {
       "anchor": {
-        "x": 6.2336065573770485,
-        "y": 0.8242827868852476
+        "x": 5.322540983606557,
+        "y": 2.6224385245901645
       },
       "prevControl": {
-        "x": 6.952968743063635,
-        "y": 0.8242827868852476
+        "x": 5.565657966930513,
+        "y": 2.093051590933861
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "EF Edge"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 119.99999999999999
   },
   "reversed": false,
   "folder": "Right Side",

@@ -77,11 +77,9 @@ public final class Constants {
   }
 
 
-  public static final class CapstanConstants {
+  public static final class ElevatorConstants {
     public static final int kElevatorLeaderCanId = 18;
     public static final int kElevatorFollowerCanId = 19;
-    public static final int kAlgaeWristCanId = 20;
-    public static final int kCoralWristCanId = 21;
 
     public static final double kWristMotorReduction = 1.0;
     public static final double kElevatorMotorReduction = 1.0;
@@ -90,41 +88,62 @@ public final class Constants {
 
     public static final class ElevatorSetpoints {
       // Elevator Positions
-      public static final double kStore = 0;
+      public static final double kStore = 2;
+      public static final double kGround = 0;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
-      public static final double kNet = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 0;
-      public static final double kL3 = 0;
-      public static final double kL4 = 0;
+      public static final double kCoralL2 = 0;
+      public static final double kAlgaeL2 = 150;
+      public static final double kCoralL3 = 114;
+      public static final double kAlgaeL3 = 0;
+      public static final double kL4 = 255; //241
+      public static final double kNet = 0;
     }
+  }
+
+  public static final class WristConstants{
+    public static final int kAlgaeWristCanId = 20;
+    public static final int kCoralWristCanId = 21;
+    
+    public static final double kAlgaePositionOffset = 51;
+    public static final double kAlgaeLowerLimit = 0.125;
+    public static final double kAlgaeUpperLimit = 0.738;
+    
+    public static final double kCoralPositionOffset = 28;
+    private static final double kCoralWristLength = 0.381; //meters or 15 inches
+    private static final double kCoralWristWeight = 5.9; //Pounds
+    public static final double kCoralMaxVelocity = 
+    (MotorConstants.kNeoFreeSpeedRpm / 125) * kCoralWristLength * ((2*Math.PI) / 60); //metersPerSec
+    public static final double kCoralMaxAcceleration = 2.6 / (kCoralWristWeight * kCoralWristLength); //metersPerSec^2
 
     public static final class AlgaeWristSetpoints {
       // Algae Wrist Positions
-      public static final double kStore = 0;
+      public static final double kStore = 51;
       public static final double kFeederStation = 0;
+      public static final double kGround = -8;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
-      public static final double kL1 = 0;
-      public static final double kL2 = 0;
+      public static final double kL1 = 0.00;
+      public static final double kL2 = 2;
       public static final double kL3 = 0;
       public static final double kL4 = 0;
     }
 
     public static final class CoralWristSetpoints {
       //Coral Wrist Positions
-      public static final double kStore = 0;
+      //True values
+      public static final double kStore = 24;
       public static final double kFeederStation = 0;
       public static final double kProcessor = 0;
       public static final double kNet = 0;
       public static final double kL1 = 0;
-      public static final double kL2 = 0;
-      public static final double kL3 = 0;
-      public static final double kL4 = 0;
+      public static final double kL2 = 6;
+      public static final double kL3 = -2;
+      public static final double kL4 = -1; 
     }
   }
-
+  
   public final class CoralConstants {
     //CAN-ID's
     public static final int kCoralLeader = 5;
@@ -145,7 +164,7 @@ public final class Constants {
     //speeds
     public static final double kNetSpeed = -1.0;
     public static final double kProcessorSpeed = -0.5;
-    public static final double kReefSpeed = 1.0;
+    public static final double kIntakeSpeed = 1.0;
   } 
 
 

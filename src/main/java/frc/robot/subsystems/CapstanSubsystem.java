@@ -13,28 +13,35 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Configs.AlgaeConfig;
 import frc.robot.Configs.Capstan;
-import frc.robot.Constants.CapstanConstants.AlgaeWristSetpoints;
-import frc.robot.Constants.CapstanConstants.CoralWristSetpoints;
-import frc.robot.Constants.CapstanConstants.ElevatorSetpoints;
 
-import static frc.robot.Constants.CapstanConstants.*;
+import static frc.robot.Constants.ElevatorConstants.*;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class CapstanSubsystem extends SubsystemBase {
   /** Subsystem-wide setpoints */
   public enum Setpoint {
     kStore,
+    kGround,
     kFeederStation,
     kProcessor,
     kNet,
     kL1,
-    kL2,
-    kL3,
+    kCoralL2,
+    kAlgaeL2,
+    kCoralL3,
+    kAlgaeL3,
     kL4;
   }
 
@@ -44,15 +51,16 @@ public class CapstanSubsystem extends SubsystemBase {
 
   private final RelativeEncoder m_elevatorEncoder;
 
-  private final SparkClosedLoopController m_elevatorPIDController;
+  private final PIDController m_elevatorPIDController;
 
   private final DigitalInput m_hallSensor;
 
   private boolean wasResetByLimit = false;
-  private double elevatorCurrentTarget = ElevatorSetpoints.kStore;
-  private double algaeWristCurrentTarget = AlgaeWristSetpoints.kStore;
-  private double coralWristCurrentTarget = CoralWristSetpoints.kStore;
+  private double elevatorCurrentTarget = ElevatorSetpoints.kStore; //Rotations
   private Setpoint currentSetpoint = Setpoint.kStore;
+
+  private ElevatorFeedforward m_Feedforward; 
+  private SlewRateLimiter rateLimiter = new SlewRateLimiter(0.4);
 
   /** Creates a new CapstanSubsystem. */
   public CapstanSubsystem() {
@@ -61,13 +69,16 @@ public class CapstanSubsystem extends SubsystemBase {
 
     m_elevatorEncoder = m_elevatorLeader.getEncoder();
     
-    m_elevatorPIDController = m_elevatorLeader.getClosedLoopController();
+    m_elevatorPIDController = new PIDController(0.14, 0.1, 0); //tune please
+    m_elevatorPIDController.setTolerance(1.5);
+    m_elevatorPIDController.setIZone(0.1);
+
+    m_Feedforward = new ElevatorFeedforward(0,0.16,3.07, 0.02); //Need to guesstamate kS
 
     m_ElevatorFollowerConfig
       .apply(Capstan.elevatorConfig)
       .follow(kElevatorLeaderCanId, true);
       
-    
     // m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     // m_elevatorFollower.configure(m_ElevatorFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_elevatorLeader.configure(Capstan.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -77,17 +88,20 @@ public class CapstanSubsystem extends SubsystemBase {
     m_elevatorEncoder.setPosition(0);
     // m_wristEncoder.setPosition(0);
 
-    m_hallSensor = new DigitalInput(0);
+    m_hallSensor = new DigitalInput(9);
   }
 
-  public boolean isElevatorAtBottom() {
-    return m_hallSensor.get();
+  public BooleanSupplier isElevatorAtBottom() {
+    return ()-> !m_hallSensor.get();
   }
 
-  public Setpoint curentCapstanSetpoint() {
+  public Setpoint getCurentElevatorSetpoint() {
     return currentSetpoint;
   }
   
+  /**
+   * @return elevtator position in rotations
+   */
   private double getElevatorPostion() {
     return -m_elevatorEncoder.getPosition();
   }
@@ -96,54 +110,73 @@ public class CapstanSubsystem extends SubsystemBase {
     return m_elevatorEncoder.getVelocity();
   }
 
-  private void moveToSetpoint() {
-    m_elevatorPIDController.setReference(elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
+   /**
+   * @param setpoint
+   * @return if the elevator is currently at inputed setpoint
+   */
+  public Trigger atElevatorSetpoint(Setpoint setpoint) {
+    return new Trigger(() -> setpoint == getCurentElevatorSetpoint());
   }
 
   /** Zero the elevator encoder when the limit switch is pressed. */
   private void zeroElevatorOnLimitSwitch() {
-    if (!wasResetByLimit && isElevatorAtBottom()) {
+    if (!wasResetByLimit && isElevatorAtBottom().getAsBoolean()) {
       // Zero the encoder only when the limit switch is switches from "unpressed" to
       // "pressed" to
       // prevent constant zeroing while pressed
       m_elevatorEncoder.setPosition(0);
       wasResetByLimit = true;
-    } else if (!isElevatorAtBottom()) {
+    } else if (!isElevatorAtBottom().getAsBoolean()) {
       wasResetByLimit = false;
     }
   }
 
-  public void zeroElevator() {
+  private void zeroElevator() {
     m_elevatorEncoder.setPosition(0);
   }
+  
+  private void setSpeed(double speed) {
+    // Lower limit
+    if (getElevatorPostion() <= 10 && speed < 0) {
+      stopMotors();
+    }
+    else {m_elevatorLeader.set(-speed);}
+    // m_elevatorLeader.set(-rateLimiter.calculate(speed));
+  }
 
-  public Command runElevator(double speed) {
-      return run(()-> setSpeed(speed))
-      .finallyDo(()-> stopMotors());
+  private void setSpeedWithLimit(double speed){
+    // Upper limit
+    if (speed <= -0.2) {speed = -0.2;}
+    setSpeed(speed);
+  }
+
+  private void stopMotors() {
+    m_elevatorLeader.stopMotor();
   }
   
-  public void setSpeed(double speed) {
-    // Upper limit
-    // if(getElevatorPostion() <= kUpperLimit) {
-      m_elevatorLeader.set(speed);
-    // }
-    // else {
-    //   stopMotors();
-    // }
+  public Command runElevatorCommand(double speed) {
+    return runEnd(() -> setSpeed(speed), () -> stopMotors());
   }
 
-  public void stopMotors() {
-    m_elevatorLeader.stopMotor();
+
+  /**
+   * Command to move the elevator to the current set setpoint
+   * Should make it stay in place.
+   */
+  public Command moveToSetpointCommand(Setpoint setSetpoint){
+    return startRun(() -> setSetpoint(setSetpoint),
+      () -> {
+        setSpeed(m_elevatorPIDController.calculate(getElevatorPostion()));
+      })
+      .until(()-> m_elevatorPIDController.atSetpoint())
+      .finallyDo(()-> stopMotors());
   }
 
   /**
    * Command to set the subsystem setpoint. This will set the arm and elevator to
-   * their predefined
-   * positions for the given setpoint.
+   * their predefined positions for the given setpoint.
    */
-  public Command setSetpointCommand(Setpoint setpoint) {
-    return this.runOnce(
-        () -> {
+  public void setSetpoint(Setpoint setpoint) {
           switch (setpoint) {
             case kStore:
               elevatorCurrentTarget = ElevatorSetpoints.kStore;
@@ -163,28 +196,43 @@ public class CapstanSubsystem extends SubsystemBase {
               elevatorCurrentTarget = ElevatorSetpoints.kL1;
               currentSetpoint = Setpoint.kL1;
               break;
-            case kL2:
-              elevatorCurrentTarget = ElevatorSetpoints.kL2;
-              currentSetpoint = Setpoint.kL2;
+            case kCoralL2:
+              elevatorCurrentTarget = ElevatorSetpoints.kCoralL2;
+              currentSetpoint = Setpoint.kCoralL2;
               break;
-            case kL3:
-              elevatorCurrentTarget = ElevatorSetpoints.kL3;
-              currentSetpoint = Setpoint.kL3;
+            case kAlgaeL2:
+              elevatorCurrentTarget = ElevatorSetpoints.kAlgaeL2;
+              currentSetpoint = Setpoint.kAlgaeL2;
+              break;
+            case kCoralL3:
+              elevatorCurrentTarget = ElevatorSetpoints.kCoralL3;
+              currentSetpoint = Setpoint.kCoralL3;
+              break;
+            case kAlgaeL3:
+              elevatorCurrentTarget = ElevatorSetpoints.kAlgaeL3;
+              currentSetpoint = Setpoint.kAlgaeL3;
               break;
             case kL4:
               elevatorCurrentTarget = ElevatorSetpoints.kL4;
               currentSetpoint = Setpoint.kL4;
               break;
+            case kGround:
+              elevatorCurrentTarget = ElevatorSetpoints.kGround;
+              currentSetpoint = Setpoint.kGround;
+              break;
+            default:
+              break;
           }
-        });
-  }
+    m_elevatorPIDController.setSetpoint(elevatorCurrentTarget);
+ }
+  
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    moveToSetpoint();
     zeroElevatorOnLimitSwitch();
+    SmartDashboard.putBoolean("Elevator at bottom", isElevatorAtBottom().getAsBoolean());
     SmartDashboard.putNumber("Elevator Position", getElevatorPostion());
-    SmartDashboard.putNumber("Elevator Velocity", getElevatorVelocity());
+    SmartDashboard.putNumber("Elevator Goal", m_elevatorPIDController.getSetpoint());
   }
 }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.564241803278687,
-        "y": 2.047028688524591
+        "x": 7.588217213114754,
+        "y": 4.025
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.904918032786883,
-        "y": 2.047028688524591
+        "x": 6.92889344262295,
+        "y": 4.025
       },
       "isLocked": false,
-      "linkedName": "RS Start"
+      "linkedName": "MS Start"
     },
     {
       "anchor": {
-        "x": 6.2336065573770485,
-        "y": 0.8242827868852476
+        "x": 6.137704918032787,
+        "y": 4.036987704918033
       },
       "prevControl": {
-        "x": 6.952968743063635,
-        "y": 0.8242827868852476
+        "x": 6.857067103719373,
+        "y": 4.036987704918033
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "HG Edge"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Right Side",
+  "folder": "Middle Side",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

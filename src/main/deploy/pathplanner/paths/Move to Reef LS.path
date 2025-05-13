@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.588217213114754,
-        "y": 4.025
+        "x": 7.576229508196722,
+        "y": 6.158811475409837
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.92889344262295,
-        "y": 4.025
+        "x": 7.351317391367314,
+        "y": 6.049657731986558
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LS Start"
     },
     {
       "anchor": {
-        "x": 6.6651639344262295,
-        "y": 4.025
+        "x": 5.3105532786885234,
+        "y": 5.4395491803278695
       },
       "prevControl": {
-        "x": 7.384526120112816,
-        "y": 4.025
+        "x": 5.9147394813709,
+        "y": 6.311474311047746
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "JI Edge"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Left Side",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

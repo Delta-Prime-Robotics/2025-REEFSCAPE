@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Move to Reef LS"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CoralL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JI Edge to J Reef"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Outtake Coral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Left Side",
+  "choreoAuto": false
+}
