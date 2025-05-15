@@ -115,7 +115,7 @@ public class RobotContainer {
     .withTimeout(10));
 
     new JoystickButton(m_driverGamepad, Button.kB.value)
-    .onTrue(new AlignAndDriveToAprilTagCommand(m_DriveSubsystem, m_vision, 12));
+    .onTrue(new AlignAndDriveToAprilTagCommand(m_DriveSubsystem, m_vision, 4));
   }
     
   private void configurePathPlaner(){

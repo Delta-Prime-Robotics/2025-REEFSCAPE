@@ -26,7 +26,7 @@ import frc.robot.Configs;
 import frc.robot.Constants.ModuleConstants;
 
 public class MAXSwerveModule {
-  private final SparkFlex m_drivingSparkFlex;
+  private final SparkMax m_drivingSparkMax;
   private final SparkMax m_turningSparkMax;
 
   private final RelativeEncoder m_drivingEncoder;
@@ -45,20 +45,20 @@ public class MAXSwerveModule {
    * Encoder.
    */
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
-    m_drivingSparkFlex = new SparkFlex(drivingCANId, MotorType.kBrushless);
+    m_drivingSparkMax = new SparkMax(drivingCANId, MotorType.kBrushless);
     m_turningSparkMax = new SparkMax(turningCANId, MotorType.kBrushless);
    
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
-    m_drivingEncoder = m_drivingSparkFlex.getEncoder();
+    m_drivingEncoder = m_drivingSparkMax.getEncoder();
     m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder();
 
-    m_drivingPIDController = m_drivingSparkFlex.getClosedLoopController();
+    m_drivingPIDController = m_drivingSparkMax.getClosedLoopController();
     m_turningPIDController = m_turningSparkMax.getClosedLoopController();
 
     
     // * CONFIGURE MOTORS
-    m_drivingSparkFlex.configure(Configs.MAXSwerveModule.drivingConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_drivingSparkMax.configure(Configs.MAXSwerveModule.drivingConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_turningSparkMax.configure(Configs.MAXSwerveModule.turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_chassisAngularOffset = chassisAngularOffset;
@@ -118,7 +118,7 @@ public class MAXSwerveModule {
 
   /**Returns an double array with {DriveMotorTemp, TurningMotorTemp} */
   public double[] motorTemps(){
-    double temps[] = {m_drivingSparkFlex.getMotorTemperature(), m_turningSparkMax.getMotorTemperature()};
+    double temps[] = {m_drivingSparkMax.getMotorTemperature(), m_turningSparkMax.getMotorTemperature()};
     return temps;
   }
 }
