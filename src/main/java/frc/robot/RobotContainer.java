@@ -101,11 +101,20 @@ public class RobotContainer {
       m_DriveSubsystem
     ));
 
-    m_driverGamepad.leftBumper()
+    m_driverGamepad.leftTrigger()
     .onTrue(m_driverHaptics.coralBuzz());
 
-    m_driverGamepad.rightBumper()
+    m_driverGamepad.rightTrigger()
     .onTrue(m_driverHaptics.algaeBuzz());
+
+    m_driverGamepad.b()
+    .onTrue(m_driverHaptics.onOffVarBuzzRepeat(0.4, 0.8, 0.25, 1));
+
+    m_driverGamepad.a()
+    .onTrue(m_driverHaptics.alternatingBuzzRepeat(0.9, 1, 0.5, 2.5));
+
+    m_driverGamepad.x()
+    .onTrue(m_driverHaptics.onOffBuzzRepeat(0.9, RumbleType.kLeftRumble, 0.15, 2));
 
     // m_driverGamepad.b()
     // .whileTrue(m_driverHaptics.babyModeBuzz());

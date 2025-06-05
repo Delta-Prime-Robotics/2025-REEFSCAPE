@@ -44,6 +44,12 @@ public class Haptics extends SubsystemBase {
     m_controller.setRumble(type, buzz);
   }
 
+  private void setBuzzVarBoth(double lightBuzz, double heavyBuzz) {
+    double seconds = 0.3;
+    setBuzz(heavyBuzz, kHeavy);
+    setBuzz(lightBuzz, kLight);
+  }
+
   /**
    * Stops the rumble on the specified side of the controller.
    * 
@@ -70,28 +76,81 @@ public class Haptics extends SubsystemBase {
         () -> setBuzz(buzz, kMedium),
         () -> stopBuzzing(kMedium));
   }
-
-  // /*This isn't working yet,  */
-  // public Command buzzVarBoth(double lightBuzz, double heavyBuzz) {
-  //   return runOnce(()-> setBuzz(heavyBuzz, kHeavy))
-  //     .alongWith(runOnce(()-> setBuzz(lightBuzz, kLight)))
-  //     .finallyDo(()-> stopBuzzing(kMedium));
-  // }
-
+  
   public Command buzzFor(double buzz, RumbleType type, double time) {
     return runEnd(
         () -> m_controller.setRumble(type, buzz),
         () -> stopBuzzing(type)).withTimeout(time);
   }
 
+  /**
+   * Runs the light and heavy buzzes at diffrent speeds for a set amount of time.
+   * @param lightBuzz
+   * @param heavyBuzz
+   * @param seconds
+   */
+  public Command buzzVarBothFor(double lightBuzz, double heavyBuzz, double seconds) {
+    return runEnd(
+      ()-> setBuzzVarBoth(lightBuzz, heavyBuzz),
+      ()-> stopBuzzing(kMedium)).withTimeout(seconds);
+  }
+
+  /**
+   * Turns a buzz on and off for a durtaion of time. 
+   * Time inbetween buzzes is the buzzTime / 3
+   * @param buzz buzz stregnth
+   * @param type type of buzz ((left, heavy), (middle,medium), (right, light))
+   * @param buzzTime duration of buzz 
+   * @param totalTime total duration of pattern
+   */
   public Command onOffBuzzRepeat(double buzz, RumbleType type, double buzzTime, double totalTime) {
-    double kLess = buzzTime / 3;
+    double less = buzzTime / 3;
     return new RepeatCommand(
-        buzzFor(buzz, type, buzzTime))
-        .andThen(Commands.waitSeconds(buzzTime - kLess))
+        buzzFor(buzz, type, buzzTime)
+        .andThen(Commands.waitSeconds(buzzTime - less))
+        )
         .withTimeout(totalTime)
         .finallyDo(() -> stopBuzzing(type));
   }
+  
+  /**
+   * Turns the heavy and light buzz on and off for a durtaion of time. 
+   * Time in between buzzes is the buzzTime / 3
+   * @param lightBuzz buzz stregnth for the light buzz
+   * @param heavyBuzz buzz stregth for the heavy buzz
+   * @param buzzTime duration of both buzzess
+   * @param totalTime total duration of pattern
+   */
+  public Command onOffVarBuzzRepeat(double lightbuzz, double heavyBuzz, double buzzTime, double totalTime) {
+    double less = buzzTime / 3;
+    return new RepeatCommand(buzzVarBothFor(lightbuzz,heavyBuzz, buzzTime))
+    .andThen(Commands.waitSeconds(buzzTime - less))
+    .withTimeout(totalTime)
+    .finallyDo(() -> stopBuzzing(kMedium));
+  }
+  
+
+  /**
+   * Alternates between the light and heavy buzz for a duration of time. 
+   * Time in between the diffrent buzzes is the buzzTime / 3
+   * @param lightBuzz buzz stregnth for the light buzz
+   * @param heavyBuzz buzz stregth for the heavy buzz
+   * @param buzzTime duration of both buzzess
+   * @param totalTime total duration of pattern
+   */
+  public Command alternatingBuzzRepeat(double lightbuzz, double heavyBuzz, double buzzTime, double totalTime) {
+    double less = buzzTime / 3;
+    return new RepeatCommand(
+        buzzFor(lightbuzz, kLight, buzzTime)
+        .andThen(Commands.waitSeconds(less))
+        .andThen(buzzFor(heavyBuzz, kHeavy, buzzTime)))
+        .andThen(Commands.waitSeconds(less)
+        )
+        .withTimeout(totalTime)
+        .finallyDo(() -> stopBuzzing(kMedium));
+  }
+
+
 
   public Command coralBuzz() {
     double kTime = 0.15;
